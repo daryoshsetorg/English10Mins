@@ -1,7 +1,7 @@
 import React, { Component, useState, useEffect } from 'react'
 import { View, Image, Animated } from 'react-native'
 import Styles from '../../assets/styles/welcome'
-import { createStackNavigator } from 'react-navigation-stack';
+
 
 function Welcome(props) {
     const[fadeAnim,setFadeAnim]=useState(new Animated.Value(0));
@@ -12,6 +12,7 @@ function Welcome(props) {
             {
               toValue: 1,
               duration: 2500,
+              useNativeDriver:true
             }
           ).start();
           setTimeout(() => {
@@ -43,6 +44,6 @@ function Welcome(props) {
 }
 
 Welcome.navigationOptions = ({ navigation }) => ({
-  header:null 
+  headerShown:false 
 });
 export default Welcome;

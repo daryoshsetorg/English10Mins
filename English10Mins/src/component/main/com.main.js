@@ -19,9 +19,6 @@ const stack = createStackNavigator({
   },
   Welcome: {
     screen: Welcome,
-    navigationOptions: {
-      header: null,
-    }
   },
 },{
   initialRouteName:'Welcome'

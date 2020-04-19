@@ -85,6 +85,8 @@ target 'English10Mins' do
 
   pod 'RNScreens', :path => '../node_modules/react-native-screens'
 
+  pod 'RNSound', :path => '../node_modules/react-native-sound'
+
   target 'English10MinsTests' do
     inherit! :complete
     # Pods for testing
