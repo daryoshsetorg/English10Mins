@@ -4,49 +4,74 @@ import Sound from 'react-native-sound'
 
 Sound.setCategory('Playback');
 
-
 export default function Lesson(){
+
   const [current,setCurrent]=useState(0);
+  const [duration,setDuration]=useState(2);
+  let currentt=0;
 
   var whoosh = new Sound(require('../../assets/music/a.mp3'), Sound.MAIN_BUNDLE, (error) => {
     if (error) {
       ToastAndroid.showWithGravity("failed to load the sound,call manager",ToastAndroid.LONG,ToastAndroid.CENTER)
-      console.log('failed to load the sound1', error);
       return;
     }
   });
+
+  
   
   function handlePlay(){
+        setDuration(whoosh.getDuration());
+
+        setInterval(() => {
+          whoosh.getCurrentTime((seconds,isPlaying) => {
+          setCurrent(seconds);  
+          })
+        }, 5000);
+
     whoosh.play((success) => {
+      console.log(success)
       if (!success) {
-       
-        console.log('Sound did not play')
+        
+      }
+      else{
+        
       }
     })
   }
   
   function handlePause(){
-    whoosh.pause((success) => {
-      if (!success) {
-        console.log('Sound did not play')
-      }
-    })
+    clearInterval();
+    whoosh.pause();
   }
 
   function handleStop(){
-    whoosh.stop((success) => {
-      if (!success) {
-        console.log('Sound did not play')
-      }
-    })
+    clearInterval();
+    whoosh.stop(()=>{
+      whoosh.play();
+    });
+  }
+
+  function handleCurrent(){
+    whoosh.getCurrentTime((seconds,isPlaying) => {
+      console.log(seconds)
+      setCurrent(seconds);})
   }
   
   function handleDuration(){
-    whoosh.getCurrentTime((seconds,isPlay) => {
-      console.log(seconds)
-      console.log(isPlay)
-      setCurrent(seconds);})
+   let tt= whoosh.getDuration();
+   setDuration(tt);
   }
+
+  function handleSetCurrent(time){
+    clearInterval();
+    whoosh.stop();
+    whoosh.setCurrentTime(time);
+    whoosh.play();
+    setInterval(() => {
+      whoosh.getCurrentTime((seconds,isPlaying) => {
+        setCurrent(seconds);})
+    }, 5000);
+   }
   
 
   return (
@@ -63,12 +88,25 @@ export default function Lesson(){
        <Text>stop</Text>
      </TouchableOpacity>
 
-  <Text>duration : {handleDuration()}</Text>
+     <TouchableOpacity onPress={()=>{handleCurrent()}}>
+       <Text>getCurrent</Text>
+     </TouchableOpacity>
+
+     <TouchableOpacity onPress={()=>{handleDuration()}}>
+       <Text>getAll</Text>
+     </TouchableOpacity>
+
+  <Text>current : {Math.round(current/60)}</Text>
+  <Text>Total : {duration}</Text>
+  <Text>Minute Time : {Math.round(duration/60)}</Text>
 
   <Slider
     style={{width: 200, height: 40}}
+    value={current}
     minimumValue={0}
-    maximumValue={200}
+    maximumValue={duration}
+    onValueChange={(v)=>{handleSetCurrent(v)}}
+    onSlidingComplete={()=>{handleStop()}}
     maximumTrackTintColor="#FFFFFF"
     minimumTrackTintColor="#000000"
   />
