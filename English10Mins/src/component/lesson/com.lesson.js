@@ -7,31 +7,43 @@ Sound.setCategory('Playback');
 export default function Lesson(){
 
   const [current,setCurrent]=useState(0);
-  const [duration,setDuration]=useState(2);
-  let currentt=0;
-
-  var whoosh = new Sound(require('../../assets/music/a.mp3'), Sound.MAIN_BUNDLE, (error) => {
+  const [duration,setDuration]=useState(3);
+  const [whoosh,setWhoosh]=useState(new Sound(require('../../assets/music/a.mp3'), Sound.MAIN_BUNDLE, (error) => {
     if (error) {
       ToastAndroid.showWithGravity("failed to load the sound,call manager",ToastAndroid.LONG,ToastAndroid.CENTER)
       return;
     }
-  });
+  }));
 
+
+  useEffect(()=>{
+    whoosh.play();
+    let tt= whoosh.getDuration();
+    setDuration(tt);
+  })
   
+
+  var timeInterVal =  setInterval(() => {
+    whoosh.getCurrentTime((seconds) => {
+    setCurrent(seconds);  
+    })
+  }, 5000);
+  clearInterval(timeInterVal);
+  timeInterVal=null;
   
   function handlePlay(){
-        setDuration(whoosh.getDuration());
-
-        setInterval(() => {
-          whoosh.getCurrentTime((seconds,isPlaying) => {
+        
+    clearInterval(timeInterVal);
+        timeInterVal=null;
+        timeInterVal =  setInterval(() => {
+          whoosh.getCurrentTime((seconds) => {
           setCurrent(seconds);  
           })
         }, 5000);
 
     whoosh.play((success) => {
-      console.log(success)
       if (!success) {
-        
+        console.log('cant play')
       }
       else{
         
@@ -40,15 +52,13 @@ export default function Lesson(){
   }
   
   function handlePause(){
-    clearInterval();
+    console.log('pause')
     whoosh.pause();
   }
 
   function handleStop(){
-    clearInterval();
-    whoosh.stop(()=>{
-      whoosh.play();
-    });
+    console.log('stop')
+    whoosh.stop();
   }
 
   function handleCurrent(){
@@ -63,14 +73,8 @@ export default function Lesson(){
   }
 
   function handleSetCurrent(time){
-    clearInterval();
-    whoosh.stop();
     whoosh.setCurrentTime(time);
-    whoosh.play();
-    setInterval(() => {
-      whoosh.getCurrentTime((seconds,isPlaying) => {
-        setCurrent(seconds);})
-    }, 5000);
+    setCurrent(time);
    }
   
 
@@ -88,17 +92,9 @@ export default function Lesson(){
        <Text>stop</Text>
      </TouchableOpacity>
 
-     <TouchableOpacity onPress={()=>{handleCurrent()}}>
-       <Text>getCurrent</Text>
-     </TouchableOpacity>
 
-     <TouchableOpacity onPress={()=>{handleDuration()}}>
-       <Text>getAll</Text>
-     </TouchableOpacity>
-
-  <Text>current : {Math.round(current/60)}</Text>
-  <Text>Total : {duration}</Text>
-  <Text>Minute Time : {Math.round(duration/60)}</Text>
+  <Text>current : {Math.round((current/60 + Number.EPSILON) * 100) / 100}</Text>
+  <Text>Minute Time : {Math.round((duration/60 + Number.EPSILON) * 100) / 100}</Text>
 
   <Slider
     style={{width: 200, height: 40}}
@@ -106,7 +102,8 @@ export default function Lesson(){
     minimumValue={0}
     maximumValue={duration}
     onValueChange={(v)=>{handleSetCurrent(v)}}
-    onSlidingComplete={()=>{handleStop()}}
+    onTouchStart={()=>{handleStop()}}
+    onTouchEnd={()=>{handlePlay()}}
     maximumTrackTintColor="#FFFFFF"
     minimumTrackTintColor="#000000"
   />
