@@ -1,8 +1,8 @@
 
 import { StyleSheet } from 'react-native'
 
-const perpale="#5b369f"
-const yellow="#f8ee53"
+const yellow="#5b369f"
+const purple="#f8ee53"
 export default  StyleSheet.create({
   main: {
     flex: 1,
@@ -16,7 +16,7 @@ export default  StyleSheet.create({
   },
   topRight: {
     flex: 8,
-    backgroundColor: perpale
+    backgroundColor: purple
   },
   topMiddle: {
     flex: 1
@@ -34,7 +34,7 @@ export default  StyleSheet.create({
   },
   bottomLeft: {
     flex: 8,
-    backgroundColor: perpale
+    backgroundColor: purple
   },
   logoArea: {
     flex: 1,

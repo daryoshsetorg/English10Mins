@@ -9,9 +9,6 @@ import Icon from 'react-native-ionicons'
 
 export default function Lessons(props){
 
-   props.navigation.navigationOptions = {
-    title: 'Great',
-  };
 const [loading,setLoading]=useState(false);
 const [loadingMore,setLoadingMore]=useState(false);
 const [data,setData]=useState([]);
