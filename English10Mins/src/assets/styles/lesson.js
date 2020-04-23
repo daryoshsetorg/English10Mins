@@ -70,5 +70,19 @@ export default StyleSheet.create({
     justifyContent:'center',
     alignItems:'center',
     backgroundColor: 'green'
+  },
+  title:{
+    flex:1,
+    alignItems:'flex-start',
+    justifyContent:'center'
+  },
+  titleText:{
+    fontSize:20,
+    fontWeight:'bold'
+  },
+  description:{
+    flex:5,
+    alignItems:'flex-start',
+    justifyContent:'flex-start'
   }
 })

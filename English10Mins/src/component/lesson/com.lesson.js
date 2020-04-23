@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, ToastAndroid, TouchableOpacity, Slider } from 'react-native'
+import React, { useEffect, useState,useRef } from 'react';
+import { View, Text, ToastAndroid, TouchableOpacity, Slider,Animated } from 'react-native'
 import HeaderImageScrollView, { TriggeringView } from 'react-native-image-header-scroll-view';
 import Icon from 'react-native-ionicons'
 import Sound from 'react-native-sound'
-
+import RNFS from 'react-native-fs'
 import Styles from '../../assets/styles/lesson'
+import Toast from 'react-native-root-toast';
 
 function Lesson(props) {
+  console.log(props.navigation.state.params.Id)
 
   Sound.setCategory('Playback');
   const [current, setCurrent] = useState(0);
@@ -21,6 +23,27 @@ function Lesson(props) {
 
   const [title, setTitle] = useState("");
   const [showTitle, setShowTitle] = useState(false);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.timing(
+      fadeAnim,
+      {
+        useNativeDriver:true
+      }
+    ).start();
+
+    let tt = whoosh.getDuration();
+    setDuration(tt);
+  });
+
+  var timeInterVal = setInterval(() => {
+    whoosh.getCurrentTime((seconds) => {
+      setCurrent(seconds);
+    })
+  }, 5000);
+  clearInterval(timeInterVal);
+  timeInterVal = null;
 
   function backToList() {
     setTitle("")
@@ -40,60 +63,77 @@ function Lesson(props) {
     setShowTitle(false);
   }
 
-  useEffect(() => {
-    let tt = whoosh.getDuration();
-    setDuration(tt);
-  })
+  function handleDownload() {
+    const fileName = 'header_logo.png'
 
+    if (RNFS.existsRes(`${RNFS.DownloadDirectoryPath}/${fileName}`)) {
 
-  var timeInterVal = setInterval(() => {
-    whoosh.getCurrentTime((seconds) => {
-      setCurrent(seconds);
-    })
-  }, 5000);
-  clearInterval(timeInterVal);
-  timeInterVal = null;
+      Toast.show(`file exists in ${RNFS.DownloadDirectoryPath}`, {duration: Toast.durations.LONG,
+        position: Toast.positions.BOTTOM,
+        shadow: true,
+        animation: true,
+        hideOnPress: true,
+        delay: 0,
+        backgroundColor:'red'}
+        );
+        
+    }
+    else {
+      console.log('file not exist')
+      RNFS.downloadFile({
+        fromUrl: `https://facebook.github.io/react-native/img/${fileName}`,
+        toFile: `${RNFS.DownloadDirectoryPath}/${fileName}`,
+        progress: (v) => { _downloadFileProgress(v) }
+        , progressDivider: 1
+      })
+    }
+
+  }
+
+  function _downloadFileProgress(data) {
+    const percentage = ((100 * data.bytesWritten) / data.contentLength) | 0;
+    const text = `Progress ${percentage}%`;
+    if (percentage == 100) {
+      console.log('doooooooooone')
+    }
+    else {
+      _downloadFileProgress(data);
+    }
+  }
 
   function handlePlay() {
-
     clearInterval(timeInterVal);
     timeInterVal = null;
+
     timeInterVal = setInterval(() => {
       whoosh.getCurrentTime((seconds) => {
         setCurrent(seconds);
       })
     }, 5000);
 
+    setIsPlay(true);
+
     whoosh.play((success) => {
       if (!success) {
-        console.log('cant play')
+        ToastAndroid.show('cant play !')
       }
       else {
-        setIsPlay(true);
+       
       }
     })
   }
 
   function handlePause() {
-    console.log('pause')
     whoosh.pause();
+    setIsPlay(false);
   }
 
   function handleStop() {
-    console.log('stop')
     whoosh.stop();
   }
 
-  function handleCurrent() {
-    whoosh.getCurrentTime((seconds, isPlaying) => {
-      console.log(seconds)
-      setCurrent(seconds);
-    })
-  }
-
-  function handleDuration() {
-    let tt = whoosh.getDuration();
-    setDuration(tt);
+  function handleRepeat() {
+    whoosh.setNumberOfLoops(-1)
   }
 
   function handleSetCurrent(time) {
@@ -102,16 +142,19 @@ function Lesson(props) {
   }
 
   function player() {
+
     let playButton = <TouchableOpacity onPress={() => { handlePlay() }}>
       <Icon android="play" size={20}
         color="#fff" />
     </TouchableOpacity>
+
     if (isPlay) {
       playButton = <TouchableOpacity onPress={() => { handlePause() }}>
         <Icon android="pause" size={20}
           color="#fff" />
       </TouchableOpacity>
     }
+    
     return (<View style={Styles.playerMainSection}>
       <View style={Styles.playerButton}>
 
@@ -141,24 +184,24 @@ function Lesson(props) {
 
       </View>
       <View style={Styles.playerRepeat}>
-        <Text>
+        <TouchableOpacity>
           <Icon android="repeat" size={30}
             color="#fff" />
-        </Text>
+        </TouchableOpacity>
 
       </View>
       <View style={Styles.playerOprationLike}>
-        <Text>
+        <TouchableOpacity>
           <Icon android="heart" size={25}
             color="#fff" />
-        </Text>
+        </TouchableOpacity>
 
       </View>
       <View style={Styles.playerOprationDownload}>
-        <Text>
+        <TouchableOpacity onPress={() => { handleDownload() }}>
           <Icon android="download" size={25}
             color="#fff" />
-        </Text>
+        </TouchableOpacity>
       </View>
     </View>
     )
@@ -196,20 +239,21 @@ function Lesson(props) {
       headerImage={imageUrl}
       maxOverlayOpacity={0.5}
       foregroundParallaxRatio={3}
-      renderFixedForeground={() => (fixedTop())}>
-
-
+      renderFixedForeground={() => (fixedTop())}
+    >
       <TriggeringView onBeginHidden={() => { showTitles('test') }}
-        onDisplay={() => { hideTitle() }}
-      >
+        onDisplay={() => { hideTitle() }}>
       </TriggeringView>
 
       <View style={{ minHeight: 200 }}>
         {player()}
 
-        <View>
-          <Text>{}</Text>
-  <Text>{}</Text>
+        <View style={Styles.title}>
+          <Text style={Styles.titleText}>asdfasdf  asdfasdf asdfasdf </Text>
+
+        </View>
+        <View style={Styles.description}>
+          <Text>asdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdf </Text>
         </View>
       </View>
 
