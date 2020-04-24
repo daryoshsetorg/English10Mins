@@ -1,11 +1,13 @@
-import React, { useEffect, useState,useRef } from 'react';
-import { View, Text, ToastAndroid, TouchableOpacity, Slider,Animated } from 'react-native'
+import React, { useEffect, useState, useRef } from 'react';
+import { View, Text, TouchableOpacity, Slider, Animated } from 'react-native'
 import HeaderImageScrollView, { TriggeringView } from 'react-native-image-header-scroll-view';
 import Icon from 'react-native-ionicons'
 import Sound from 'react-native-sound'
 import RNFS from 'react-native-fs'
 import Styles from '../../assets/styles/lesson'
 import Toast from 'react-native-root-toast';
+import { ErrorStyle, SuccessStyle, infoStyle } from '../../assets/styles/toast'
+import HTMLView from 'react-native-htmlview';
 
 function Lesson(props) {
   console.log(props.navigation.state.params.Id)
@@ -16,7 +18,7 @@ function Lesson(props) {
   const [isPlay, setIsPlay] = useState(false);
   const [whoosh, setWhoosh] = useState(new Sound(require('../../assets/music/a.mp3'), Sound.MAIN_BUNDLE, (error) => {
     if (error) {
-      ToastAndroid.showWithGravity("failed to load the sound,call manager", ToastAndroid.LONG, ToastAndroid.CENTER)
+      console.log('error')
       return;
     }
   }));
@@ -29,13 +31,13 @@ function Lesson(props) {
     Animated.timing(
       fadeAnim,
       {
-        useNativeDriver:true
+        useNativeDriver: true
       }
     ).start();
 
     let tt = whoosh.getDuration();
     setDuration(tt);
-  });
+  }, []);
 
   var timeInterVal = setInterval(() => {
     whoosh.getCurrentTime((seconds) => {
@@ -53,6 +55,10 @@ function Lesson(props) {
     props.navigation.goBack();
   }
 
+  function fetchData() {
+
+  }
+
   function showTitles(title) {
     setShowTitle(true);
     setTitle(title)
@@ -65,21 +71,13 @@ function Lesson(props) {
 
   function handleDownload() {
     const fileName = 'header_logo.png'
-
+    console.log(fileName)
     if (RNFS.existsRes(`${RNFS.DownloadDirectoryPath}/${fileName}`)) {
-
-      Toast.show(`file exists in ${RNFS.DownloadDirectoryPath}`, {duration: Toast.durations.LONG,
-        position: Toast.positions.BOTTOM,
-        shadow: true,
-        animation: true,
-        hideOnPress: true,
-        delay: 0,
-        backgroundColor:'red'}
-        );
-        
+      console.log('file exist')
+      Toast.show(`file exists in ${RNFS.DownloadDirectoryPath}/${fileName}`, ErrorStyle
+      );
     }
     else {
-      console.log('file not exist')
       RNFS.downloadFile({
         fromUrl: `https://facebook.github.io/react-native/img/${fileName}`,
         toFile: `${RNFS.DownloadDirectoryPath}/${fileName}`,
@@ -91,10 +89,12 @@ function Lesson(props) {
   }
 
   function _downloadFileProgress(data) {
+    console.log('download progress')
     const percentage = ((100 * data.bytesWritten) / data.contentLength) | 0;
     const text = `Progress ${percentage}%`;
+    console.log(text);
     if (percentage == 100) {
-      console.log('doooooooooone')
+      Toast.show('download done!', SuccessStyle)
     }
     else {
       _downloadFileProgress(data);
@@ -115,10 +115,10 @@ function Lesson(props) {
 
     whoosh.play((success) => {
       if (!success) {
-        ToastAndroid.show('cant play !')
+        Toast.show('cant play song', ErrorStyle)
       }
       else {
-       
+
       }
     })
   }
@@ -154,7 +154,7 @@ function Lesson(props) {
           color="#fff" />
       </TouchableOpacity>
     }
-    
+
     return (<View style={Styles.playerMainSection}>
       <View style={Styles.playerButton}>
 
@@ -207,15 +207,36 @@ function Lesson(props) {
     )
   }
 
+  function smallPlayer(){
+    let playButton = <TouchableOpacity onPress={() => { handlePlay() }}>
+      <Icon android="play" size={40}  color="#fff" />
+    </TouchableOpacity>
+
+    if (isPlay) {
+      playButton = <TouchableOpacity onPress={() => { handlePause() }}>
+        <Icon android="pause" size={40} color="#fff" />
+      </TouchableOpacity>
+    }
+
+    return (<View style={Styles.playerMainSection}>
+      <View style={Styles.playerButton}>
+
+        {playButton}
+
+      </View>
+    </View>
+    )
+  }
+
   function fixedTop() {
     if (showTitle)
       return (
         <View>
           <TouchableOpacity onPress={(v) => { backToList(v) }} style={Styles.backButton}>
-            <Icon android="arrow-back" size={20} color="#fff" />
+            <Icon android="arrow-back-circle-sharp" size={20} color="#fff" />
           </TouchableOpacity>
-          <View style={{ alignItems: 'center', justifyContent: 'center', height: 40 }}>
-            <Text style={{ color: '#fff', fontWeight: '700' }}>{title}</Text>
+          <View style={{marginTop:40}}>
+          {smallPlayer()}
           </View>
         </View>
       )
@@ -223,15 +244,23 @@ function Lesson(props) {
       return (
         <View>
           <TouchableOpacity onPress={(v) => { backToList(v) }} style={Styles.backButton}>
-            <Icon android="arrow-back-outline" size={20}
+            <Icon android="arrow-back-circle-sharp" size={30}
               color="#fff" />
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={(v) => { backToList(v) }} style={Styles.next}>
+            <Text style={{color:"#fff"}}>Next</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={(v) => { backToList(v) }} style={Styles.preve}>
+            <Text style={{color:"#fff"}}>Preve</Text>
           </TouchableOpacity>
         </View>
       )
   }
 
   let imageUrl = require('../../assets/images/logo.jpg');
-
+  let htmlContent = '<div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div>'
   return (
     <HeaderImageScrollView
       maxHeight={200}
@@ -245,20 +274,21 @@ function Lesson(props) {
         onDisplay={() => { hideTitle() }}>
       </TriggeringView>
 
-      <View style={{ minHeight: 200 }}>
+      <View style={Styles.bodyTarget}>
+
         {player()}
 
         <View style={Styles.title}>
           <Text style={Styles.titleText}>asdfasdf  asdfasdf asdfasdf </Text>
+        </View>
 
+        <View style={Styles.htmlView}>
+          <HTMLView value={htmlContent} />
         </View>
-        <View style={Styles.description}>
-          <Text>asdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdfasdfasdf  asdfasdf asdfasdf </Text>
-        </View>
+
       </View>
 
     </ HeaderImageScrollView>
-
   );
 }
 

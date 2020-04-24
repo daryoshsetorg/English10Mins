@@ -1,11 +1,35 @@
 import React from 'react';
-import {View,Text,ScrollView} from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, TextInput } from 'react-native'
 
+import Styles from '../../assets/styles/search'
 
-export default function Search(){
+function Search() {
+
   return (
-<View>
-    <Text>search</Text>
-</View>
+    <View>
+      <View style={Styles.heaerMainSectin}>
+        <View style={Styles.headerBackSection}>
+          <TouchableOpacity>
+            <Text>back</Text>
+          </TouchableOpacity>
+        </View>
+        <View>
+
+        </View>
+        <View>
+
+        </View>
+      </View>
+      <View style={Styles.searchBody}>
+
+      </View>
+      <Text>search</Text>
+    </View>
   )
 }
+
+Search.navigationOptions = ({ navigation }) => ({
+  headerShown: false
+});
+
+export default Search;

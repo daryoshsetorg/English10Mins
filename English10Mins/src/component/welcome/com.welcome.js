@@ -18,7 +18,7 @@ function Welcome(props) {
           setTimeout(() => {
             props.navigation.navigate("Main")
           }, 2500);
-    },[])
+    },[]);
   
 
 
