@@ -1,14 +1,29 @@
 import { StyleSheet } from 'react-native'
 export default StyleSheet.create({
     heaerMainSectin: {
-        height: 40,
+        height: 50,
         width: '100%',
-        flexDirection: 'row'
+        flexDirection: 'row',
+        borderBottomWidth:1,
+        borderBottomColor:'gray'
     },
     headerBackSection: {
-        flex: 1
+        flex: 1,
+        justifyContent:'center',
+        alignItems:'center'
+    
     },
-    searchBody:{
+    headerSearchSection: {
+        flex: 6,
+        
+    },
+    headerSearchCancle:{
+        flex:1,
+        justifyContent:'center',
+        alignItems:'flex-start',
+       
+    },
+    searchBody: {
 
     }
 })

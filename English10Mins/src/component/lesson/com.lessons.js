@@ -6,6 +6,7 @@ import Styles from '../../assets/styles/lessons'
 import Header from '../header/com.header'
 import {MainImageUrl} from '../../utilities/url'
 import Icon from 'react-native-ionicons'
+import Items from '../items/com.items'
 
 export default function Lessons(props){
 
@@ -88,33 +89,6 @@ useEffect(() => {
     setLoadingMore(true);
     fetchData();
   };
-
-  Items=(params)=> {
-    let imageUrl;
-    // if (params.ImgUrl != null)
-    //   imageUrl = { uri: MainImageUrl + params.ImgUrl }
-    // else
-      imageUrl = require('../../assets/images/noImage.png');
-
-    return (
-      <View style={Styles.mainContainer}>
-        <View style={Styles.itemContainer}>
-          <TouchableOpacity onPress={() => {
-            sendData(params.ID)
-          }} style={Styles.imageContainer}>
-            <Image resizeMode='cover' style={Styles.image}  source={imageUrl} />
-          </TouchableOpacity>
-          <View style={Styles.textContainer}>
-              <TouchableOpacity>
-                <Text style={Styles.title}>
-                  {params.Title}
-                </Text>
-              </TouchableOpacity>
-          </View>
-        </View>
-      </View>
-    )
-  }
 
   _renderFooter = () => {
     if (!loadingMore) return null;
