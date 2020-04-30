@@ -7,6 +7,7 @@ import Header from '../header/com.header'
 import {MainImageUrl} from '../../utilities/url'
 import Icon from 'react-native-ionicons'
 import Items from '../items/com.items'
+import {getAll} from '../../assets/api/api'
 
 export default function Lessons(props){
 
@@ -17,57 +18,11 @@ const [pageIndex,setPageIndex]=useState(1);
 const [pageSize,setPageSize]=useState(5);
 const [lesson,setLesson]=useState({});
 
-const fakeData=[
-  {
-  Id:0,
-  Title:'test01test01test01test01test01test01test01test01test01test01test01test01test01test01test01test01test01test01test01test01test01test01',
-  ImgUrl:'0'
-},
-{
-  Id:1,
-  Title:'test02',
-  ImgUrl:'0'
-},
-{
-  Id:2,
-  Title:'test02',
-  ImgUrl:'0'
-},
-{
-  Id:3,
-  Title:'test02',
-  ImgUrl:'0'
-},
-{
-  Id:4,
-  Title:'test02',
-  ImgUrl:'0'
-},
-{
-  Id:5,
-  Title:'test02',
-  ImgUrl:'0'
-},
-{
-  Id:6,
-  Title:'test02',
-  ImgUrl:'0'
-},
-{
-  Id:7,
-  Title:'test02',
-  ImgUrl:'0'
-}
-];
-
 fetchData = () => {
-  // props.GetArticles(state.Filter).then(() => {
-  //   var a = state.data;
-  //   var b = props.ArticlesData;
-  //   state.data.push.apply(a, b);
-  //   setLoading(false);
-  // });
-  setData(fakeData);
+  let params={index:pageIndex}
+  getAll(params).then((res)=>{
+    setData(res);
+  });
 }
 
 useEffect(() => {
@@ -76,10 +31,11 @@ useEffect(() => {
 
   sendData = (id) => {
     let filterLesson = data.filter((less) => {
-      return less.ID === id
+      return less.Id === id
     })
 
     setLesson(filterLesson[0]);
+    console.log(lesson)
     props.navigation.navigate("Lesson", lesson);
   }
 

@@ -1,20 +1,21 @@
 import React,{useState,useEffect} from 'react';
 import {View,Text,TouchableOpacity,Image} from 'react-native'
 import Styles from '../../assets/styles/lessons'
+import {MainImageUrl} from '../../utilities/url'
 
 export default function Items(params){
 
     let imageUrl;
-    // if (params.ImgUrl != null)
-    //   imageUrl = { uri: MainImageUrl + params.ImgUrl }
-    // else
+    if (params.ImageUrl != null)
+      imageUrl = { uri: MainImageUrl +"/"+ params.ImageUrl }
+    else
       imageUrl = require('../../assets/images/noImage.png');
 
     return (
       <View style={Styles.mainContainer}>
         <View style={Styles.itemContainer}>
           <TouchableOpacity onPress={() => {
-            sendData(params.ID)
+            sendData(params.Id)
           }} style={Styles.imageContainer}>
             <Image resizeMode='cover' style={Styles.image}  source={imageUrl} />
           </TouchableOpacity>

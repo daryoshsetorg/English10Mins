@@ -1,7 +1,9 @@
-export const Url = "http://192.168.1.165:410";
+export const Url = "http://english10mins.ir";
 
-export const MainUrl = Url + "/DesktopModules/Hypermedia/Api/RemoteService.ashx?action="
+export const MainLessons = Url + "/api/lessons"
 
-export const MainImageUrl = Url + "/Portals/0/Modules/Hypermedia/";
+export const MainLesson = Url + "/api/lesson"
 
-export const MainSoundUrl=Url+"";
+export const MainImageUrl = Url + "/content/files/image";
+
+export const MainSoundUrl = Url + "/content/files/voice";

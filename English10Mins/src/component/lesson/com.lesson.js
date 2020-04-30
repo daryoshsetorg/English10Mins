@@ -8,24 +8,33 @@ import Styles from '../../assets/styles/lesson'
 import Toast from 'react-native-root-toast';
 import { ErrorStyle, SuccessStyle, infoStyle } from '../../assets/styles/toast'
 import HTMLView from 'react-native-htmlview';
+import { MainImageUrl, MainSoundUrl } from '../../utilities/url';
+import { getLesson } from '../../assets/api/api';
 
 function Lesson(props) {
-  console.log(props.navigation.state.params.Id)
 
   Sound.setCategory('Playback');
-  const [current, setCurrent] = useState(0);
-  const [duration, setDuration] = useState(3);
-  const [isPlay, setIsPlay] = useState(false);
-  const [whoosh, setWhoosh] = useState(new Sound(require('../../assets/music/a.mp3'), Sound.MAIN_BUNDLE, (error) => {
+  var lessonId = props.navigation.state.params.Id;
+  var fileName = lessonId + ".mp3";
+  var soundUrl = MainSoundUrl + "/" + fileName;
+  var imageUrl = { uri: MainImageUrl + "/" + lessonId + ".jpg" };
+  
+  const [whoosh] = useState(new Sound(soundUrl, Sound.MAIN_BUNDLE, (error) => {
     if (error) {
-      console.log('error')
+      Toast.show('Error to Load', ErrorStyle)
       return;
     }
   }));
 
+  const [current, setCurrent] = useState(0)
+  const [duration, setDuration] = useState(3);
+  const [isPlay, setIsPlay] = useState(false);
+
+
   const [title, setTitle] = useState("");
   const [showTitle, setShowTitle] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const [lesson, SetLesson] = useState({})
 
   useEffect(() => {
     Animated.timing(
@@ -35,9 +44,19 @@ function Lesson(props) {
       }
     ).start();
 
-    let tt = whoosh.getDuration();
-    setDuration(tt);
+    // let tt = whoosh.getDuration();
+    // setDuration(tt);
+
+    fetchData();
   }, []);
+
+  function fetchData() {
+    let params = { Id: lessonId }
+    getLesson(params).then((res) => {
+      console.log(res)
+      SetLesson(res);
+    });
+  }
 
   var timeInterVal = setInterval(() => {
     whoosh.getCurrentTime((seconds) => {
@@ -55,10 +74,6 @@ function Lesson(props) {
     props.navigation.goBack();
   }
 
-  function fetchData() {
-
-  }
-
   function showTitles(title) {
     setShowTitle(true);
     setTitle(title)
@@ -70,10 +85,8 @@ function Lesson(props) {
   }
 
   function handleDownload() {
-    const fileName = 'header_logo.png'
-    console.log(fileName)
+
     if (RNFS.existsRes(`${RNFS.DownloadDirectoryPath}/${fileName}`)) {
-      console.log('file exist')
       Toast.show(`file exists in ${RNFS.DownloadDirectoryPath}/${fileName}`, ErrorStyle
       );
     }
@@ -89,10 +102,8 @@ function Lesson(props) {
   }
 
   function _downloadFileProgress(data) {
-    console.log('download progress')
     const percentage = ((100 * data.bytesWritten) / data.contentLength) | 0;
     const text = `Progress ${percentage}%`;
-    console.log(text);
     if (percentage == 100) {
       Toast.show('download done!', SuccessStyle)
     }
@@ -118,7 +129,6 @@ function Lesson(props) {
         Toast.show('cant play song', ErrorStyle)
       }
       else {
-
       }
     })
   }
@@ -207,9 +217,9 @@ function Lesson(props) {
     )
   }
 
-  function smallPlayer(){
+  function smallPlayer() {
     let playButton = <TouchableOpacity onPress={() => { handlePlay() }}>
-      <Icon android="play" size={40}  color="#fff" />
+      <Icon android="play" size={40} color="#fff" />
     </TouchableOpacity>
 
     if (isPlay) {
@@ -235,8 +245,8 @@ function Lesson(props) {
           <TouchableOpacity onPress={(v) => { backToList(v) }} style={Styles.backButton}>
             <Icon android="arrow-back-circle-sharp" size={20} color="#fff" />
           </TouchableOpacity>
-          <View style={{marginTop:40}}>
-          {smallPlayer()}
+          <View style={{ marginTop: 40 }}>
+            {smallPlayer()}
           </View>
         </View>
       )
@@ -249,18 +259,16 @@ function Lesson(props) {
           </TouchableOpacity>
 
           <TouchableOpacity onPress={(v) => { backToList(v) }} style={Styles.next}>
-            <Text style={{color:"#fff"}}>Next</Text>
+            <Text style={{ color: "#fff" }}>Next</Text>
           </TouchableOpacity>
 
           <TouchableOpacity onPress={(v) => { backToList(v) }} style={Styles.preve}>
-            <Text style={{color:"#fff"}}>Preve</Text>
+            <Text style={{ color: "#fff" }}>Preve</Text>
           </TouchableOpacity>
         </View>
       )
   }
 
-  let imageUrl = require('../../assets/images/logo.jpg');
-  let htmlContent = '<div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div><div><p><a href="#">testttt</a></p></div><div><h1>asdfasdf asdfasdf sadfasdfdg sadfasdf asdfasdf asdfasdf asdfasdf </h1></div>'
   return (
     <HeaderImageScrollView
       maxHeight={200}
@@ -279,11 +287,11 @@ function Lesson(props) {
         {player()}
 
         <View style={Styles.title}>
-          <Text style={Styles.titleText}>asdfasdf  asdfasdf asdfasdf </Text>
+          <Text style={Styles.titleText}>{lesson.Title} </Text>
         </View>
 
         <View style={Styles.htmlView}>
-          <HTMLView value={htmlContent} />
+          <HTMLView value={lesson.Content} />
         </View>
 
       </View>

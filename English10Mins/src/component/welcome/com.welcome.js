@@ -3,6 +3,7 @@ import { View, Image, Animated } from 'react-native'
 import Styles from '../../assets/styles/welcome'
 
 
+
 function Welcome(props) {
     const[fadeAnim,setFadeAnim]=useState(new Animated.Value(0));
 
