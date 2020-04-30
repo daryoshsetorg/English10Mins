@@ -89,6 +89,8 @@ target 'English10Mins' do
 
   pod 'RNFS', :path => '../node_modules/react-native-fs'
 
+
+
   target 'English10MinsTests' do
     inherit! :complete
     # Pods for testing
