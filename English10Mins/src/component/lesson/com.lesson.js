@@ -10,58 +10,55 @@ import { ErrorStyle, SuccessStyle, infoStyle } from '../../assets/styles/toast'
 import HTMLView from 'react-native-htmlview';
 import { MainImageUrl, MainSoundUrl } from '../../utilities/url';
 import { getLesson } from '../../assets/api/api';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 function Lesson(props) {
 
   Sound.setCategory('Playback');
-  var lessonId = props.navigation.state.params.Id;
+  const [lessonId, setLessonId] =useState(props.navigation.state.params.Id);
   var fileName = lessonId + ".mp3";
   var soundUrl = MainSoundUrl + "/" + fileName;
   var imageUrl = { uri: MainImageUrl + "/" + lessonId + ".jpg" };
-  
-  const [whoosh] = useState(new Sound(soundUrl, Sound.MAIN_BUNDLE, (error) => {
+
+  const [whoosh] = useState(new Sound(soundUrl, null, (error) => {
     if (error) {
-      Toast.show('Error to Load', ErrorStyle)
+      console.log('error')
+      Toast.show('Error to Load', ErrorStyle);
       return;
     }
+    
   }));
 
-  const [current, setCurrent] = useState(0)
-  const [duration, setDuration] = useState(3);
+  const [current, setCurrent] = useState(0);
+  const [duration, setDuration] = useState(1);
   const [isPlay, setIsPlay] = useState(false);
-
-
   const [title, setTitle] = useState("");
   const [showTitle, setShowTitle] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const [lesson, SetLesson] = useState({})
+  const [lesson, SetLesson] = useState({});
+  const [loadEnd, SetLoadEnd] = useState(false);
 
   useEffect(() => {
     Animated.timing(
-      fadeAnim,
-      {
-        useNativeDriver: true
-      }
+      fadeAnim, { useNativeDriver: true }
     ).start();
 
-    // let tt = whoosh.getDuration();
-    // setDuration(tt);
-
     fetchData();
+
   }, []);
 
   function fetchData() {
     let params = { Id: lessonId }
     getLesson(params).then((res) => {
-      console.log(res)
       SetLesson(res);
+      SetLoadEnd(true);
     });
   }
 
   var timeInterVal = setInterval(() => {
     whoosh.getCurrentTime((seconds) => {
       setCurrent(seconds);
-    })
+    });
   }, 5000);
   clearInterval(timeInterVal);
   timeInterVal = null;
@@ -113,6 +110,7 @@ function Lesson(props) {
   }
 
   function handlePlay() {
+
     clearInterval(timeInterVal);
     timeInterVal = null;
 
@@ -149,6 +147,18 @@ function Lesson(props) {
   function handleSetCurrent(time) {
     whoosh.setCurrentTime(time);
     setCurrent(time);
+  }
+
+  function handleNext() {
+    SetLoadEnd(false);
+    setLessonId(2);
+    fetchData();
+  }
+
+  function handlePreve() {
+    SetLoadEnd(false);
+    setLessonId(1);
+    fetchData();
   }
 
   function player() {
@@ -258,45 +268,66 @@ function Lesson(props) {
               color="#fff" />
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={(v) => { backToList(v) }} style={Styles.next}>
+          <TouchableOpacity onPress={() => { handleNext()}} style={Styles.next}>
             <Text style={{ color: "#fff" }}>Next</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={(v) => { backToList(v) }} style={Styles.preve}>
-            <Text style={{ color: "#fff" }}>Preve</Text>
+          <TouchableOpacity onPress={() => { handlePreve() }} style={Styles.preve}>
+            <Text style={{ color: "#fff" }}>
+              Preve
+            </Text>
           </TouchableOpacity>
         </View>
       )
   }
 
-  return (
-    <HeaderImageScrollView
-      maxHeight={200}
-      minHeight={80}
-      headerImage={imageUrl}
-      maxOverlayOpacity={0.5}
-      foregroundParallaxRatio={3}
-      renderFixedForeground={() => (fixedTop())}
-    >
-      <TriggeringView onBeginHidden={() => { showTitles('test') }}
-        onDisplay={() => { hideTitle() }}>
-      </TriggeringView>
+  function mainReturn() {
+    console.log('in main')
+    console.log(loadEnd)
+    let mainReturn = (<Spinner
+      visible={true}
+      textContent={'Loading...'}
+      textStyle={{ color: '#fff' }}
+    />)
 
-      <View style={Styles.bodyTarget}>
+    if (loadEnd) {
+      mainReturn =
+        <HeaderImageScrollView
+          maxHeight={200}
+          minHeight={80}
+          headerImage={imageUrl}
+          maxOverlayOpacity={0.5}
+          foregroundParallaxRatio={3}
+          renderFixedForeground={() => (fixedTop())}
+        >
+          <TriggeringView onBeginHidden={() => { showTitles('test') }}
+            onDisplay={() => { hideTitle() }}>
+          </TriggeringView>
 
-        {player()}
+          <View style={Styles.bodyTarget}>
 
-        <View style={Styles.title}>
-          <Text style={Styles.titleText}>{lesson.Title} </Text>
-        </View>
+            {player()}
 
-        <View style={Styles.htmlView}>
-          <HTMLView value={lesson.Content} />
-        </View>
+            <View style={Styles.title}>
+              <Text style={Styles.titleText}>{lesson.Title} </Text>
+            </View>
 
-      </View>
+            <View style={Styles.htmlView}>
+              <HTMLView value={lesson.Content} />
+            </View>
 
-    </ HeaderImageScrollView>
+          </View>
+
+        </ HeaderImageScrollView>
+
+    }
+
+    return mainReturn;
+  }
+
+  return (<>
+    {mainReturn()}
+  </>
   );
 }
 

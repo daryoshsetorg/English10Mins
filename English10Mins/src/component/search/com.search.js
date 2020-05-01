@@ -1,33 +1,33 @@
 import React, { useState, useRef } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, TextInput, FlatList } from 'react-native'
-
 import Styles from '../../assets/styles/search'
 import Icon from 'react-native-ionicons'
 import Items from '../items/com.items'
-import {InfoStyle} from '../../assets/styles/toast'
+import { InfoStyle } from '../../assets/styles/toast'
 import Toast from 'react-native-root-toast'
+import Spinner from 'react-native-loading-spinner-overlay';
 
 function Search(props) {
 
+  const [loadEnd, SetLoadEnd] = useState(true);
   const [typed, setTyped] = useState(false);
   const searchRef = useRef(null);
-  const [data,setData]=useState([]);
+  const [data, setData] = useState([]);
 
   function _goBack() {
     props.navigation.goBack();
   }
 
   function _changeText(value) {
+
     if (value.length > 0) {
-      if(value.length>3)
-      {
+      if (value.length > 3) {
         setTyped(true);
         _getData();
       }
-      else{
-        Toast.show('less than three',InfoStyle)
+      else {
+        Toast.show('less than three', InfoStyle)
       }
-      
     }
     else {
       setTyped(false);
@@ -47,34 +47,55 @@ function Search(props) {
     }
   }
 
-  function _cancleButtonClick(){
+  function _cancleButtonClick() {
     searchRef.current.clear();
     setData([]);
   }
 
-  function _getData(){
+  function _getData() {
 
-    
+    SetLoadEnd(false);
     setData([{
-      Id:0,
-      Title:'test01test01test01test01test01test01test01test01test01test01test01test01test01test01test01test01test01test01test01test01test01test01',
-      ImgUrl:'0'
+      Id: 0,
+      Title: 'test01test01test01test01test01test01test01test01test01test01test01test01test01test01test01test01test01test01test01test01test01test01',
+      ImgUrl: '0'
     },
     {
-      Id:1,
-      Title:'test02',
-      ImgUrl:'0'
+      Id: 1,
+      Title: 'test02',
+      ImgUrl: '0'
     },
     {
-      Id:2,
-      Title:'test02',
-      ImgUrl:'0'
+      Id: 2,
+      Title: 'test02',
+      ImgUrl: '0'
     },
     {
-      Id:3,
-      Title:'test02',
-      ImgUrl:'0'
+      Id: 3,
+      Title: 'test02',
+      ImgUrl: '0'
     }])
+    SetLoadEnd(true);
+  }
+
+  function renderFlat() {
+    let returnList = <Spinner
+      visible={true}
+      textContent={'Loading..'}
+      textStyle={{ color: '#fff' }}
+    />
+
+    if (loadEnd) {
+      returnList = <FlatList
+        data={data}
+        renderItem={({ item }) => Items(item)}
+        keyExtractor={item => item.ID}
+        style={{ marginTop: 10 }}
+      />
+
+    }
+
+    return returnList;
   }
 
   return (
@@ -101,12 +122,7 @@ function Search(props) {
 
       </View>
       <View>
-        <FlatList
-          data={data}
-          renderItem={({ item }) => Items(item)}
-          keyExtractor={item => item.ID}
-          style={{ marginTop: 10 }}
-        />
+        {renderFlat()}
       </View>
     </View>
   )

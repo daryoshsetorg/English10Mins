@@ -13,6 +13,10 @@ export default StyleSheet.create({
     width: 30,
     height: 30,
     backgroundColor: '#000',
+    borderTopEndRadius:20,
+    borderTopLeftRadius:20,
+    borderBottomEndRadius:20,
+    borderBottomLeftRadius:20,
     alignItems: 'center',
     justifyContent: 'center'
   },
@@ -21,20 +25,31 @@ export default StyleSheet.create({
     top: 10,
     right: 10,
     zIndex: 10,
-    width: 30,
+    width: 40,
     height: 30,
-    backgroundColor: '#000',
+    backgroundColor: 'red',
+    borderTopEndRadius:5,
+    borderTopLeftRadius:5,
+    borderBottomEndRadius:5,
+    borderTopLeftRadius:5,
+    borderBottomLeftRadius:5,
+    padding:2,
     alignItems: 'center',
     justifyContent: 'center'
   },
   preve: {
     position: 'absolute',
     top: 10,
-    right: 50,
+    right: 60,
     zIndex: 10,
-    width: 40,
+    width: 50,
     height: 30,
-    backgroundColor: '#000',
+    backgroundColor: 'red',
+    borderTopEndRadius:5,
+    borderTopLeftRadius:5,
+    borderBottomEndRadius:5,
+    borderTopLeftRadius:5,
+    borderBottomLeftRadius:5,
     alignItems: 'center',
     justifyContent: 'center'
   },
@@ -95,11 +110,12 @@ export default StyleSheet.create({
   },
   title: {
     flex: 1,
+    padding:20,
     alignItems: 'flex-start',
     justifyContent: 'center'
   },
   titleText: {
-    fontSize: 20,
+    fontSize: 25,
     fontWeight: 'bold'
   },
   bodyTarget: {
@@ -107,7 +123,7 @@ export default StyleSheet.create({
   },
   htmlView:{
     minHeight:200,
-    padding:10,
+    padding:20,
     lineHeight:10,
     fontSize:15
   }
