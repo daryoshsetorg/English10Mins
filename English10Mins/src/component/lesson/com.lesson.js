@@ -15,10 +15,10 @@ import Spinner from 'react-native-loading-spinner-overlay';
 function Lesson(props) {
 
   Sound.setCategory('Playback');
-  const [lessonId, setLessonId] =useState(props.navigation.state.params.Id);
-  var fileName = lessonId + ".mp3";
-  var soundUrl = MainSoundUrl + "/" + fileName;
-  var imageUrl = { uri: MainImageUrl + "/" + lessonId + ".jpg" };
+  const [lessonId, setLessonId] = useState(props.navigation.state.params.Id);
+  const [fileName] = useState(lessonId + ".mp3");
+  const [soundUrl] = useState(MainSoundUrl + "/" + fileName);
+  const [imageUrl] = useState({ uri: MainImageUrl + "/" + lessonId + ".jpg" });
 
   const [whoosh] = useState(new Sound(soundUrl, null, (error) => {
     if (error) {
@@ -26,12 +26,16 @@ function Lesson(props) {
       Toast.show('Error to Load', ErrorStyle);
       return;
     }
-    
+
   }));
 
   const [current, setCurrent] = useState(0);
   const [duration, setDuration] = useState(1);
   const [isPlay, setIsPlay] = useState(false);
+  const [isRepeated, setIsRepeated] = useState(false);
+  const [isDownloaded, setIsDownloaded] = useState(false);
+  const [downloadPercentage, setDownloadPercentage] = useState(0);
+  const [isLiked, setIsLiked] = useState(false);
   const [title, setTitle] = useState("");
   const [showTitle, setShowTitle] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -44,7 +48,6 @@ function Lesson(props) {
     ).start();
 
     fetchData();
-
   }, []);
 
   function fetchData() {
@@ -64,6 +67,8 @@ function Lesson(props) {
   timeInterVal = null;
 
   function backToList() {
+    clearInterval(timeInterVal);
+    timeInterVal = null;
     setTitle("")
     setShowTitle(false);
     whoosh.stop();
@@ -83,29 +88,43 @@ function Lesson(props) {
 
   function handleDownload() {
 
-    if (RNFS.existsRes(`${RNFS.DownloadDirectoryPath}/${fileName}`)) {
-      Toast.show(`file exists in ${RNFS.DownloadDirectoryPath}/${fileName}`, ErrorStyle
-      );
-    }
-    else {
-      RNFS.downloadFile({
-        fromUrl: `https://facebook.github.io/react-native/img/${fileName}`,
-        toFile: `${RNFS.DownloadDirectoryPath}/${fileName}`,
-        progress: (v) => { _downloadFileProgress(v) }
-        , progressDivider: 1
-      })
-    }
+    RNFS.existsRes(`${RNFS.DownloadDirectoryPath}/${fileName}`).then((exist) => {
+      console.log(exist)
+      if (exist) {
+        Toast.show(`file exists in ${RNFS.DownloadDirectoryPath}/${fileName}`, ErrorStyle
+        );
+      }
+      else {
+        setIsDownloaded(true);
+        SetLoadEnd(false);
+
+        RNFS.downloadFile({
+          fromUrl: `${MainSoundUrl}/${fileName}`,
+          toFile: `${RNFS.DownloadDirectoryPath}/${fileName}`,
+          progress: (v) => { downloadFileProgress(v) }
+          , progressDivider: 10
+        }).promise.then(() => {
+          setDownloadPercentage(100);
+          setIsDownloaded(false);
+          SetLoadEnd(true);
+        }).catch(() => {
+          setIsDownloaded(false);
+          SetLoadEnd(true);
+          Toast.show('error to connect to server', ErrorStyle);
+        });
+      }
+    })
 
   }
 
-  function _downloadFileProgress(data) {
+  function downloadFileProgress(data) {
     const percentage = ((100 * data.bytesWritten) / data.contentLength) | 0;
-    const text = `Progress ${percentage}%`;
-    if (percentage == 100) {
-      Toast.show('download done!', SuccessStyle)
-    }
-    else {
-      _downloadFileProgress(data);
+    setDownloadPercentage(percentage);
+    console.log(percentage)
+    if (percentage >= 100) {
+      setDownloadPercentage(100);
+      setIsDownloaded(false);
+      SetLoadEnd(true);
     }
   }
 
@@ -121,6 +140,9 @@ function Lesson(props) {
     }, 5000);
 
     setIsPlay(true);
+
+    let tt = whoosh.getDuration();
+    setDuration(tt);
 
     whoosh.play((success) => {
       if (!success) {
@@ -141,7 +163,13 @@ function Lesson(props) {
   }
 
   function handleRepeat() {
-    whoosh.setNumberOfLoops(-1)
+    whoosh.setNumberOfLoops(-1);
+    setIsRepeated(true);
+  }
+
+  function handleRemoveRepeat() {
+    whoosh.setNumberOfLoops(0);
+    setIsRepeated(false);
   }
 
   function handleSetCurrent(time) {
@@ -161,7 +189,58 @@ function Lesson(props) {
     fetchData();
   }
 
-  function player() {
+  function _download() {
+    let download = <TouchableOpacity onPress={() => { handleDownload() }}>
+      <Icon android="download" size={25}
+        color="#fff" />
+    </TouchableOpacity>
+
+    RNFS.existsRes(`${RNFS.DownloadDirectoryPath}/${fileName}`).then((exist) => {
+      if (exist) {
+        download = <Icon android="download" size={25}
+          color="green" />
+      }
+    })
+
+    return download;
+  }
+
+  function _downlodProgress() {
+    return <Spinner
+      visible={true}
+      cancelable={true}
+      textContent={'Downloading.. ' + downloadPercentage + " %"}
+      textStyle={{ color: '#fff' }}
+    />
+  }
+
+  function _like() {
+    let like = <TouchableOpacity>
+      <Icon android="heart" size={25}
+        color="#fff" />
+    </TouchableOpacity>
+
+    if (isLiked) {
+      like = <Icon android="heart" size={25}
+        color="red" />
+    }
+
+    return like;
+  }
+
+  function _repeated() {
+    let repeatIcon = <TouchableOpacity onPress={() => { handleRepeat() }}>
+      <Icon android="repeat" size={30}
+        color="#fff" /></TouchableOpacity>
+
+    if (isRepeated)
+      repeatIcon = <TouchableOpacity onPress={() => { handleRemoveRepeat() }}><Icon android="repeat" size={30}
+        color="red" /></TouchableOpacity>
+
+    return repeatIcon;
+  }
+
+  function _player() {
 
     let playButton = <TouchableOpacity onPress={() => { handlePlay() }}>
       <Icon android="play" size={20}
@@ -176,14 +255,16 @@ function Lesson(props) {
     }
 
     return (<View style={Styles.playerMainSection}>
+
       <View style={Styles.playerButton}>
-
         {playButton}
-
       </View>
+
       <View style={Styles.playerSlider}>
         <View style={Styles.playerSliderCurrent}>
-          <Text style={Styles.playerSliderText}>{Math.round((current / 60 + Number.EPSILON) * 100) / 100}</Text>
+          <Text style={Styles.playerSliderText}>
+            {Math.round((current / 60 + Number.EPSILON) * 100) / 100}
+          </Text>
         </View>
         <View style={Styles.playerSliderMain}>
           <Slider
@@ -198,36 +279,32 @@ function Lesson(props) {
             minimumTrackTintColor="#000000"
           />
         </View>
+
         <View style={Styles.playerSliderDuration}>
-          <Text style={Styles.playerSliderText}>{Math.round((duration / 60 + Number.EPSILON) * 100) / 100}</Text>
+          <Text style={Styles.playerSliderText}>
+            {Math.round((duration / 60 + Number.EPSILON) * 100) / 100}
+          </Text>
         </View>
 
       </View>
+
       <View style={Styles.playerRepeat}>
-        <TouchableOpacity>
-          <Icon android="repeat" size={30}
-            color="#fff" />
-        </TouchableOpacity>
-
+        {_repeated()}
       </View>
+
       <View style={Styles.playerOprationLike}>
-        <TouchableOpacity>
-          <Icon android="heart" size={25}
-            color="#fff" />
-        </TouchableOpacity>
+        {_like()}
+      </View>
 
-      </View>
       <View style={Styles.playerOprationDownload}>
-        <TouchableOpacity onPress={() => { handleDownload() }}>
-          <Icon android="download" size={25}
-            color="#fff" />
-        </TouchableOpacity>
+        {_download()}
       </View>
+
     </View>
     )
   }
 
-  function smallPlayer() {
+  function _smallPlayer() {
     let playButton = <TouchableOpacity onPress={() => { handlePlay() }}>
       <Icon android="play" size={40} color="#fff" />
     </TouchableOpacity>
@@ -248,7 +325,7 @@ function Lesson(props) {
     )
   }
 
-  function fixedTop() {
+  function _fixedTop() {
     if (showTitle)
       return (
         <View>
@@ -256,7 +333,7 @@ function Lesson(props) {
             <Icon android="arrow-back-circle-sharp" size={20} color="#fff" />
           </TouchableOpacity>
           <View style={{ marginTop: 40 }}>
-            {smallPlayer()}
+            {_smallPlayer()}
           </View>
         </View>
       )
@@ -268,7 +345,7 @@ function Lesson(props) {
               color="#fff" />
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => { handleNext()}} style={Styles.next}>
+          <TouchableOpacity onPress={() => { handleNext() }} style={Styles.next}>
             <Text style={{ color: "#fff" }}>Next</Text>
           </TouchableOpacity>
 
@@ -281,14 +358,16 @@ function Lesson(props) {
       )
   }
 
-  function mainReturn() {
-    console.log('in main')
-    console.log(loadEnd)
+  function _mainReturn() {
     let mainReturn = (<Spinner
       visible={true}
       textContent={'Loading...'}
       textStyle={{ color: '#fff' }}
     />)
+
+    if (isDownloaded) {
+      mainReturn = _downlodProgress();
+    }
 
     if (loadEnd) {
       mainReturn =
@@ -298,7 +377,7 @@ function Lesson(props) {
           headerImage={imageUrl}
           maxOverlayOpacity={0.5}
           foregroundParallaxRatio={3}
-          renderFixedForeground={() => (fixedTop())}
+          renderFixedForeground={() => (_fixedTop())}
         >
           <TriggeringView onBeginHidden={() => { showTitles('test') }}
             onDisplay={() => { hideTitle() }}>
@@ -306,7 +385,7 @@ function Lesson(props) {
 
           <View style={Styles.bodyTarget}>
 
-            {player()}
+            {_player()}
 
             <View style={Styles.title}>
               <Text style={Styles.titleText}>{lesson.Title} </Text>
@@ -326,7 +405,7 @@ function Lesson(props) {
   }
 
   return (<>
-    {mainReturn()}
+    {_mainReturn()}
   </>
   );
 }
