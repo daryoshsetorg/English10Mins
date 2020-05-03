@@ -3,6 +3,7 @@ import { StyleSheet } from 'react-native'
 
 const yellow="#5b369f"
 const purple="#f8ee53"
+
 export default  StyleSheet.create({
   main: {
     flex: 1,
@@ -42,8 +43,8 @@ export default  StyleSheet.create({
     alignItems: 'center'
   },
   logo: {
-    width: 315,
-    height: 200,
+    width: 200,
+    height: 166,
     zIndex: 10,
     marginTop: -40,
   },

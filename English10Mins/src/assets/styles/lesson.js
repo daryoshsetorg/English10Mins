@@ -1,8 +1,17 @@
-import { StyleSheet } from 'react-native'
+import { StyleSheet, NativeModules } from 'react-native'
+
+const locale = NativeModules.I18nManager.localeIdentifier
+
+let direction = 'row'
+
+if (locale == 'fa_IR')
+  direction = 'row-reverse'
+
+
 export default StyleSheet.create({
   mainSection: {
     flex: 1,
-    flexDirection: 'row',
+    flexDirection: 'row-reverse',
     zIndex: 1000,
   },
   backButton: {
@@ -13,10 +22,10 @@ export default StyleSheet.create({
     width: 30,
     height: 30,
     backgroundColor: '#000',
-    borderTopEndRadius:20,
-    borderTopLeftRadius:20,
-    borderBottomEndRadius:20,
-    borderBottomLeftRadius:20,
+    borderTopEndRadius: 20,
+    borderTopLeftRadius: 20,
+    borderBottomEndRadius: 20,
+    borderBottomLeftRadius: 20,
     alignItems: 'center',
     justifyContent: 'center'
   },
@@ -25,37 +34,37 @@ export default StyleSheet.create({
     top: 10,
     right: 10,
     zIndex: 10,
-    width: 40,
+    width: 50,
     height: 30,
     backgroundColor: 'red',
-    borderTopEndRadius:5,
-    borderTopLeftRadius:5,
-    borderBottomEndRadius:5,
-    borderTopLeftRadius:5,
-    borderBottomLeftRadius:5,
-    padding:2,
+    borderTopEndRadius: 5,
+    borderTopLeftRadius: 5,
+    borderBottomEndRadius: 5,
+    borderTopLeftRadius: 5,
+    borderBottomLeftRadius: 5,
+    padding: 2,
     alignItems: 'center',
     justifyContent: 'center'
   },
   preve: {
     position: 'absolute',
     top: 10,
-    right: 60,
+    right: 70,
     zIndex: 10,
     width: 50,
     height: 30,
     backgroundColor: 'red',
-    borderTopEndRadius:5,
-    borderTopLeftRadius:5,
-    borderBottomEndRadius:5,
-    borderTopLeftRadius:5,
-    borderBottomLeftRadius:5,
+    borderTopEndRadius: 5,
+    borderTopLeftRadius: 5,
+    borderBottomEndRadius: 5,
+    borderTopLeftRadius: 5,
+    borderBottomLeftRadius: 5,
     alignItems: 'center',
     justifyContent: 'center'
   },
   playerMainSection: {
     display: 'flex',
-    flexDirection: 'row',
+    flexDirection: direction,
     height: 40,
     backgroundColor: 'red',
     width: '100%',
@@ -70,10 +79,10 @@ export default StyleSheet.create({
   playerSlider: {
     flex: 4,
     backgroundColor: 'gray',
-    flexDirection: 'row'
+    flexDirection: direction
   },
   playerSliderText: {
-    fontSize: 20
+    fontSize: 14
   },
   playerSliderCurrent: {
     flex: 2,
@@ -110,8 +119,7 @@ export default StyleSheet.create({
   },
   title: {
     flex: 1,
-    padding:20,
-    alignItems: 'flex-start',
+    padding: 20,
     justifyContent: 'center'
   },
   titleText: {
@@ -121,10 +129,10 @@ export default StyleSheet.create({
   bodyTarget: {
     minHeight: 200
   },
-  htmlView:{
-    minHeight:200,
-    padding:20,
-    lineHeight:10,
-    fontSize:15
+  htmlView: {
+    minHeight: 200,
+    padding: 20,
+    lineHeight: 10,
+    fontSize: 15
   }
 })

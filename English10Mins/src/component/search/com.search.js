@@ -1,18 +1,20 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, TextInput, FlatList } from 'react-native'
+import { View, TouchableOpacity, TextInput, FlatList } from 'react-native'
 import Styles from '../../assets/styles/search'
 import Icon from 'react-native-ionicons'
 import Items from '../items/com.items'
 import { InfoStyle } from '../../assets/styles/toast'
 import Toast from 'react-native-root-toast'
 import Spinner from 'react-native-loading-spinner-overlay';
+import { searchLessons } from '../../assets/api/api'
 
 function Search(props) {
 
   const [loadEnd, SetLoadEnd] = useState(true);
   const [typed, setTyped] = useState(false);
-  const searchRef = useRef(null);
   const [data, setData] = useState([]);
+
+  const searchRef = useRef(null);
 
   function _goBack() {
     props.navigation.goBack();
@@ -23,7 +25,7 @@ function Search(props) {
     if (value.length > 0) {
       if (value.length > 3) {
         setTyped(true);
-        _getData();
+        _getData(value);
       }
       else {
         Toast.show('less than three', InfoStyle)
@@ -37,14 +39,14 @@ function Search(props) {
   }
 
   function _cancleButton() {
-    if (typed) {
-      return (<TouchableOpacity onPress={() => { _cancleButtonClick() }}>
-        <Icon android={'close'}></Icon>
-      </TouchableOpacity>)
-    }
-    else {
-      return (<></>)
-    }
+
+    if (!typed)
+      return <></>
+
+    return (<TouchableOpacity onPress={() => { _cancleButtonClick() }}>
+      <Icon android={'close'}></Icon>
+    </TouchableOpacity>)
+
   }
 
   function _cancleButtonClick() {
@@ -52,7 +54,7 @@ function Search(props) {
     setData([]);
   }
 
-  function _getData() {
+  function _getData(value) {
 
     SetLoadEnd(false);
     setData([{
@@ -76,6 +78,13 @@ function Search(props) {
       ImgUrl: '0'
     }])
     SetLoadEnd(true);
+  }
+
+  function fetchData(value) {
+    let params = { title: value }
+    searchLessons(params).then((res) => {
+      setData(res);
+    })
   }
 
   function renderFlat() {

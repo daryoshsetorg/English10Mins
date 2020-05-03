@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, TouchableOpacity, Slider, Animated } from 'react-native'
+import { View, Text, TouchableOpacity, Slider, Animated, NativeModules, dev } from 'react-native'
 import HeaderImageScrollView, { TriggeringView } from 'react-native-image-header-scroll-view';
 import Icon from 'react-native-ionicons'
 import Sound from 'react-native-sound'
@@ -12,8 +12,11 @@ import { MainImageUrl, MainSoundUrl } from '../../utilities/url';
 import { getLesson } from '../../assets/api/api';
 import Spinner from 'react-native-loading-spinner-overlay';
 
-function Lesson(props) {
+const locale = NativeModules.I18nManager.localeIdentifier
 
+
+function Lesson(props) {
+  console.log(locale);
   Sound.setCategory('Playback');
   const [lessonId, setLessonId] = useState(props.navigation.state.params.Id);
   const [fileName] = useState(lessonId + ".mp3");
@@ -37,10 +40,11 @@ function Lesson(props) {
   const [downloadPercentage, setDownloadPercentage] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
   const [title, setTitle] = useState("");
-  const [showTitle, setShowTitle] = useState(false);
+  const [showSmallPlayer, setShowSmallPlayer] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const [lesson, SetLesson] = useState({});
   const [loadEnd, SetLoadEnd] = useState(false);
+
 
   useEffect(() => {
     Animated.timing(
@@ -69,21 +73,9 @@ function Lesson(props) {
   function backToList() {
     clearInterval(timeInterVal);
     timeInterVal = null;
-    setTitle("")
-    setShowTitle(false);
     whoosh.stop();
     whoosh.release();
     props.navigation.goBack();
-  }
-
-  function showTitles(title) {
-    setShowTitle(true);
-    setTitle(title)
-  }
-
-  function hideTitle() {
-    setTitle('')
-    setShowTitle(false);
   }
 
   function handleDownload() {
@@ -120,7 +112,6 @@ function Lesson(props) {
   function downloadFileProgress(data) {
     const percentage = ((100 * data.bytesWritten) / data.contentLength) | 0;
     setDownloadPercentage(percentage);
-    console.log(percentage)
     if (percentage >= 100) {
       setDownloadPercentage(100);
       setIsDownloaded(false);
@@ -189,7 +180,7 @@ function Lesson(props) {
     fetchData();
   }
 
-  function _download() {
+  function _downloadButton() {
     let download = <TouchableOpacity onPress={() => { handleDownload() }}>
       <Icon android="download" size={25}
         color="#fff" />
@@ -214,7 +205,7 @@ function Lesson(props) {
     />
   }
 
-  function _like() {
+  function _likeButton() {
     let like = <TouchableOpacity>
       <Icon android="heart" size={25}
         color="#fff" />
@@ -228,7 +219,7 @@ function Lesson(props) {
     return like;
   }
 
-  function _repeated() {
+  function _repeatButton() {
     let repeatIcon = <TouchableOpacity onPress={() => { handleRepeat() }}>
       <Icon android="repeat" size={30}
         color="#fff" /></TouchableOpacity>
@@ -289,15 +280,15 @@ function Lesson(props) {
       </View>
 
       <View style={Styles.playerRepeat}>
-        {_repeated()}
+        {_repeatButton()}
       </View>
 
       <View style={Styles.playerOprationLike}>
-        {_like()}
+        {_likeButton()}
       </View>
 
       <View style={Styles.playerOprationDownload}>
-        {_download()}
+        {_downloadButton()}
       </View>
 
     </View>
@@ -326,12 +317,19 @@ function Lesson(props) {
   }
 
   function _fixedTop() {
-    if (showTitle)
+    let backIcon = <Icon android="arrow-back-circle-sharp" size={30} color="#fff" />
+
+    if (locale == 'fa_IR')
+      backIcon = <Icon android="arrow-forward-circle-sharp" size={30} color="#fff" />
+
+    let back = <TouchableOpacity onPress={(v) => { backToList(v) }} style={Styles.backButton}>
+      {backIcon}
+    </TouchableOpacity>
+
+    if (showSmallPlayer)
       return (
         <View>
-          <TouchableOpacity onPress={(v) => { backToList(v) }} style={Styles.backButton}>
-            <Icon android="arrow-back-circle-sharp" size={20} color="#fff" />
-          </TouchableOpacity>
+          {back}
           <View style={{ marginTop: 40 }}>
             {_smallPlayer()}
           </View>
@@ -340,10 +338,7 @@ function Lesson(props) {
     else
       return (
         <View>
-          <TouchableOpacity onPress={(v) => { backToList(v) }} style={Styles.backButton}>
-            <Icon android="arrow-back-circle-sharp" size={30}
-              color="#fff" />
-          </TouchableOpacity>
+          {back}
 
           <TouchableOpacity onPress={() => { handleNext() }} style={Styles.next}>
             <Text style={{ color: "#fff" }}>Next</Text>
@@ -379,8 +374,8 @@ function Lesson(props) {
           foregroundParallaxRatio={3}
           renderFixedForeground={() => (_fixedTop())}
         >
-          <TriggeringView onBeginHidden={() => { showTitles('test') }}
-            onDisplay={() => { hideTitle() }}>
+          <TriggeringView onBeginHidden={() => { setShowSmallPlayer(true) }}
+            onDisplay={() => { setShowSmallPlayer(false) }}>
           </TriggeringView>
 
           <View style={Styles.bodyTarget}>
