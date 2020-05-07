@@ -1,4 +1,12 @@
-import { StyleSheet } from 'react-native'
+import { StyleSheet,NativeModules } from 'react-native'
+
+const locale = NativeModules.I18nManager.localeIdentifier
+
+let direction = 'row'
+
+if (locale == 'fa_IR')
+  direction = 'row-reverse'
+
 export default StyleSheet.create({
   mainSection: {
     flex: 1,

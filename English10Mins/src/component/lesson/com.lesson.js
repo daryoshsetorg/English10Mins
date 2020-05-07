@@ -12,11 +12,10 @@ import { MainImageUrl, MainSoundUrl } from '../../utilities/url';
 import { getLesson } from '../../assets/api/api';
 import Spinner from 'react-native-loading-spinner-overlay';
 
-const locale = NativeModules.I18nManager.localeIdentifier
-
+const locale = NativeModules.I18nManager.localeIdentifier//language
 
 function Lesson(props) {
-  console.log(locale);
+
   Sound.setCategory('Playback');
   const [lessonId, setLessonId] = useState(props.navigation.state.params.Id);
   const [fileName] = useState(lessonId + ".mp3");
@@ -39,13 +38,13 @@ function Lesson(props) {
   const [isDownloaded, setIsDownloaded] = useState(false);
   const [downloadPercentage, setDownloadPercentage] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
-  const [title, setTitle] = useState("");
   const [showSmallPlayer, setShowSmallPlayer] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const [lesson, SetLesson] = useState({});
-  const [loadEnd, SetLoadEnd] = useState(false);
+  const [lesson, setLesson] = useState({});
+  const [loadEnd, setLoadEnd] = useState(false);
+  const [fileExist,setFileExist]=useState(false);
 
-
+console.log(`${RNFS.DocumentDirectoryPath}/${fileName}`)
   useEffect(() => {
     Animated.timing(
       fadeAnim, { useNativeDriver: true }
@@ -57,8 +56,13 @@ function Lesson(props) {
   function fetchData() {
     let params = { Id: lessonId }
     getLesson(params).then((res) => {
-      SetLesson(res);
-      SetLoadEnd(true);
+      setLesson(res);
+      setLoadEnd(true);
+      RNFS.exists(`${RNFS.DocumentDirectoryPath}/${fileName}`).then((exist) => {
+        if (exist) {
+          setFileExist(true);
+        }
+      })
     });
   }
 
@@ -80,10 +84,9 @@ function Lesson(props) {
 
   function handleDownload() {
 
-    RNFS.existsRes(`${RNFS.DownloadDirectoryPath}/${fileName}`).then((exist) => {
-      console.log(exist)
+    RNFS.exists(`${RNFS.DocumentDirectoryPath}/${fileName}`).then((exist) => {
       if (exist) {
-        Toast.show(`file exists in ${RNFS.DownloadDirectoryPath}/${fileName}`, ErrorStyle
+        Toast.show(`file exists in ${RNFS.DocumentDirectoryPath}/${fileName}`, ErrorStyle
         );
       }
       else {
@@ -92,16 +95,18 @@ function Lesson(props) {
 
         RNFS.downloadFile({
           fromUrl: `${MainSoundUrl}/${fileName}`,
-          toFile: `${RNFS.DownloadDirectoryPath}/${fileName}`,
+          toFile: `${RNFS.DocumentDirectoryPath}/${fileName}`,
           progress: (v) => { downloadFileProgress(v) }
           , progressDivider: 10
         }).promise.then(() => {
           setDownloadPercentage(100);
           setIsDownloaded(false);
-          SetLoadEnd(true);
+          setLoadEnd(true);
+          setFileExist(true);
+
         }).catch(() => {
           setIsDownloaded(false);
-          SetLoadEnd(true);
+          setLoadEnd(true);
           Toast.show('error to connect to server', ErrorStyle);
         });
       }
@@ -111,12 +116,13 @@ function Lesson(props) {
 
   function downloadFileProgress(data) {
     const percentage = ((100 * data.bytesWritten) / data.contentLength) | 0;
+    console.log(percentage)
     setDownloadPercentage(percentage);
-    if (percentage >= 100) {
-      setDownloadPercentage(100);
-      setIsDownloaded(false);
-      SetLoadEnd(true);
-    }
+    // if (percentage >= 100) {
+    //   setDownloadPercentage(100);
+    //   setIsDownloaded(false);
+    //   setLoadEnd(true);
+    // }
   }
 
   function handlePlay() {
@@ -169,13 +175,13 @@ function Lesson(props) {
   }
 
   function handleNext() {
-    SetLoadEnd(false);
+    setLoadEnd(false);
     setLessonId(2);
     fetchData();
   }
 
   function handlePreve() {
-    SetLoadEnd(false);
+    setLoadEnd(false);
     setLessonId(1);
     fetchData();
   }
@@ -186,12 +192,10 @@ function Lesson(props) {
         color="#fff" />
     </TouchableOpacity>
 
-    RNFS.existsRes(`${RNFS.DownloadDirectoryPath}/${fileName}`).then((exist) => {
-      if (exist) {
+      if (fileExist) {
         download = <Icon android="download" size={25}
           color="green" />
       }
-    })
 
     return download;
   }

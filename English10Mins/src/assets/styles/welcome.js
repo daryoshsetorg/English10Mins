@@ -43,8 +43,8 @@ export default  StyleSheet.create({
     alignItems: 'center'
   },
   logo: {
-    width: 200,
-    height: 166,
+    width: 150,
+    height: 100,
     zIndex: 10,
     marginTop: -40,
   },

@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { View, TouchableOpacity, TextInput, FlatList } from 'react-native'
+import { View, TouchableOpacity, TextInput, FlatList, NativeModules } from 'react-native'
 import Styles from '../../assets/styles/search'
 import Icon from 'react-native-ionicons'
 import Items from '../items/com.items'
@@ -7,6 +7,8 @@ import { InfoStyle } from '../../assets/styles/toast'
 import Toast from 'react-native-root-toast'
 import Spinner from 'react-native-loading-spinner-overlay';
 import { searchLessons } from '../../assets/api/api'
+
+const locale = NativeModules.I18nManager.localeIdentifier
 
 function Search(props) {
 
@@ -107,12 +109,19 @@ function Search(props) {
     return returnList;
   }
 
+  function _backButton() {
+    if (locale == 'fa_IR')
+      return <Icon android={'arrow-forward-circle-sharp'}></Icon>
+    else
+      return <Icon android={'arrow-back-circle-sharp'}></Icon>
+  }
+
   return (
     <View>
       <View style={Styles.heaerMainSectin}>
         <View style={Styles.headerBackSection}>
           <TouchableOpacity onPress={() => { _goBack() }}>
-            <Icon android={'arrow-back-circle-sharp'}></Icon>
+            {_backButton()}
           </TouchableOpacity>
         </View>
         <View style={Styles.headerSearchSection}>

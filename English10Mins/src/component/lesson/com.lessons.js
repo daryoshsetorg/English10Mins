@@ -84,6 +84,7 @@ export default function Lessons(props) {
   }
 
   Lessons.navigationOptions = ({ navigation }) => ({
+
     headerLeft: () => null,
     title: 'English10Mins',
     headerTitleStyle: {
