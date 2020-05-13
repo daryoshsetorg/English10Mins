@@ -1,5 +1,5 @@
 import Axios from 'axios'
-import { MainLesson, MainLessons,SearchLessons } from '../../utilities/url'
+import { MainLesson, MainLessons, SearchLessons,LikeLessons } from '../../utilities/url'
 
 export function getAll(params) {
     let returnList = []
@@ -13,16 +13,28 @@ export function getAll(params) {
     });
 }
 
-export function getLesson(params)
-{
+export function getLesson(params) {
     return Axios.get(MainLesson + "/" + params.Id).then((res) => {
-            return res.data
+        return res.data
     });
 }
 
-export function searchLessons(params){
+export function searchLessons(params) {
     return Axios.get(SearchLessons + "/" + params.Id).then((res) => {
         return res.data
-});
+    });
 }
+
+export function likeLesson(params) {
+    if (params.IsLike) {
+        return Axios.get(LikeLessons + "/" + params.Id).then((res) => {
+            return res.data
+        });
+    } else {
+        return Axios.get(LikeLessons + "/" + params.Id).then((res) => {
+            return res.data
+        });
+    }
+}
+
 

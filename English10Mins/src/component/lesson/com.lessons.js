@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ActivityIndicator, FlatList, TouchableOpacity, Image, SafeAreaView } from 'react-native'
-import Spinner from 'react-native-loading-spinner-overlay'
 
-import Styles from '../../assets/styles/lessons'
-import Header from '../header/com.header'
-import { MainImageUrl } from '../../utilities/url'
+import Spinner from 'react-native-loading-spinner-overlay'
 import Icon from 'react-native-ionicons'
 import Items from '../items/com.items'
 import { getAll } from '../../assets/api/api'
 
-export default function Lessons(props) {
+function Lessons(props) {
 
   const [loadEnd, SetLoadEnd] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -61,13 +58,13 @@ export default function Lessons(props) {
   };
 
   beforRender = () => {
-    let render = 
+    let render =
       <Spinner
         visible={true}
         textContent={'Loading..'}
         textStyle={{ color: '#fff' }}
       />
-    
+
     if (loadEnd)
       render =
         <FlatList
@@ -83,29 +80,31 @@ export default function Lessons(props) {
     return render;
   }
 
-  Lessons.navigationOptions = ({ navigation }) => ({
-
-    headerLeft: () => null,
-    title: 'English10Mins',
-    headerTitleStyle: {
-      textAlign: "left",
-      fontSize: 24
-    },
-
-    headerRightContainerStyle: {
-      paddingRight: 10
-    },
-    headerRight:( 
-      <TouchableOpacity onPress={() => props.navigation.navigate("Search")}>
-        <Icon name="search" left={20} />
-      </TouchableOpacity>
-    )
-
-  });
-
   return (
     <SafeAreaView>
       {beforRender()}
     </SafeAreaView>
   )
 }
+
+Lessons.navigationOptions = () => ({
+
+  headerLeft: () => null,
+  title: 'Alvin',
+  headerTitleStyle: {
+    textAlign: "left",
+    fontSize: 24
+  },
+
+  headerRightContainerStyle: {
+    paddingRight: 10
+  },
+  headerRight: (
+    <TouchableOpacity onPress={() => props.navigation.navigate("Search")}>
+      <Icon name="search" left={20} />
+    </TouchableOpacity>
+  )
+
+});
+
+export default Lessons

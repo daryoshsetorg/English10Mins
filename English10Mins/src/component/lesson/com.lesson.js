@@ -9,7 +9,7 @@ import Toast from 'react-native-root-toast';
 import { ErrorStyle, SuccessStyle, infoStyle } from '../../assets/styles/toast'
 import HTMLView from 'react-native-htmlview';
 import { MainImageUrl, MainSoundUrl } from '../../utilities/url';
-import { getLesson } from '../../assets/api/api';
+import { getLesson, likeLesson } from '../../assets/api/api';
 import Spinner from 'react-native-loading-spinner-overlay';
 
 const locale = NativeModules.I18nManager.localeIdentifier//language
@@ -20,12 +20,11 @@ function Lesson(props) {
   const [lessonId, setLessonId] = useState(props.navigation.state.params.Id);
   const [fileName] = useState(lessonId + ".mp3");
   const [soundUrl] = useState(MainSoundUrl + "/" + fileName);
-  const [imageUrl] = useState({ uri: MainImageUrl + "/" + lessonId + ".jpg" });
+  const [imageUrl, setImageUrl] = useState({ uri: MainImageUrl + "/" + lessonId + ".jpg" });
 
   const [whoosh] = useState(new Sound(soundUrl, null, (error) => {
     if (error) {
-      console.log('error')
-      Toast.show('Error to Load', ErrorStyle);
+      Toast.show('Error to Load mp3', ErrorStyle);
       return;
     }
 
@@ -42,9 +41,8 @@ function Lesson(props) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const [lesson, setLesson] = useState({});
   const [loadEnd, setLoadEnd] = useState(false);
-  const [fileExist,setFileExist]=useState(false);
+  const [fileExist, setFileExist] = useState(false);
 
-console.log(`${RNFS.DocumentDirectoryPath}/${fileName}`)
   useEffect(() => {
     Animated.timing(
       fadeAnim, { useNativeDriver: true }
@@ -57,12 +55,15 @@ console.log(`${RNFS.DocumentDirectoryPath}/${fileName}`)
     let params = { Id: lessonId }
     getLesson(params).then((res) => {
       setLesson(res);
+      setImageUrl({ uri: MainImageUrl + "/" + lessonId + ".jpg" });
       setLoadEnd(true);
       RNFS.exists(`${RNFS.DocumentDirectoryPath}/${fileName}`).then((exist) => {
         if (exist) {
           setFileExist(true);
         }
       })
+    }).catch(()=>{
+      Toast.show('error to connect to server',ErrorStyle)
     });
   }
 
@@ -118,11 +119,6 @@ console.log(`${RNFS.DocumentDirectoryPath}/${fileName}`)
     const percentage = ((100 * data.bytesWritten) / data.contentLength) | 0;
     console.log(percentage)
     setDownloadPercentage(percentage);
-    // if (percentage >= 100) {
-    //   setDownloadPercentage(100);
-    //   setIsDownloaded(false);
-    //   setLoadEnd(true);
-    // }
   }
 
   function handlePlay() {
@@ -186,16 +182,28 @@ console.log(`${RNFS.DocumentDirectoryPath}/${fileName}`)
     fetchData();
   }
 
+  function handleLike(isLike) {
+    let params = { IsLike: isLike, Id: lessonId }
+    likeLesson(params).then(() => {
+      if (isLike)
+        setIsLiked(true)
+      else
+        setIsLiked(false)
+    }).catch(()=>{
+      Toast.show('error to connect to server',ErrorStyle);
+    })
+  }
+
   function _downloadButton() {
     let download = <TouchableOpacity onPress={() => { handleDownload() }}>
       <Icon android="download" size={25}
         color="#fff" />
     </TouchableOpacity>
 
-      if (fileExist) {
-        download = <Icon android="download" size={25}
-          color="green" />
-      }
+    if (fileExist) {
+      download = <Icon android="download" size={25}
+        color="green" />
+    }
 
     return download;
   }
@@ -210,14 +218,16 @@ console.log(`${RNFS.DocumentDirectoryPath}/${fileName}`)
   }
 
   function _likeButton() {
-    let like = <TouchableOpacity>
+    let like = <TouchableOpacity onPress={() => { handleLike(true) }}>
       <Icon android="heart" size={25}
         color="#fff" />
     </TouchableOpacity>
 
     if (isLiked) {
-      like = <Icon android="heart" size={25}
+      like = <TouchableOpacity onPress={() => { handleLike(false) }}>
+        <Icon android="heart" size={25}
         color="red" />
+      </TouchableOpacity>
     }
 
     return like;
