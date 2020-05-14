@@ -91,6 +91,9 @@ target 'English10Mins' do
 
 
 
+
+  pod 'RNDeviceInfo', :path => '../node_modules/react-native-device-info'
+
   target 'English10MinsTests' do
     inherit! :complete
     # Pods for testing

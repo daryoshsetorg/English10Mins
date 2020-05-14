@@ -4,9 +4,9 @@ export const MainLessons = Url + "/api/lessons";
 
 export const MainLesson = Url + "/api/lesson";
 
-export const SearchLessons = Url + "/api/";
+export const SearchLessons = Url + "/api/LessonSearch";
 
-export const LikeLessons = Url + "/api/";
+export const LikeLessons = Url + "/api/LessonLike";
 
 export const MainImageUrl = Url + "/content/files/image";
 

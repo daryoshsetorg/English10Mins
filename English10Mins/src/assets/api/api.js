@@ -1,9 +1,11 @@
 import Axios from 'axios'
-import { MainLesson, MainLessons, SearchLessons,LikeLessons } from '../../utilities/url'
+import { MainLesson, MainLessons, SearchLessons, LikeLessons } from '../../utilities/url'
+
+const pageSize = 5;
 
 export function getAll(params) {
     let returnList = []
-    return Axios.get(MainLessons + "/" + params.index).then((d) => {
+    return Axios.get(MainLessons + "/" + params.index + "/" + pageSize).then((d) => {
 
         d.data.forEach(element => {
             returnList.push({ Id: element.Id, Title: element.Title, ImageUrl: element.Id + '.jpg' })
@@ -20,8 +22,16 @@ export function getLesson(params) {
 }
 
 export function searchLessons(params) {
-    return Axios.get(SearchLessons + "/" + params.Id).then((res) => {
-        return res.data
+    console.log(params)
+    let returnList = [];
+    return Axios.get(SearchLessons + "/" + params.Title + "/" + params.PageIndex + "/" + pageSize).then((res) => {
+
+        if (res.data.length > 0) {
+            res.data.forEach(element => {
+                returnList.push({ Id: element.Id, Title: element.Title, ImageUrl: element.Id + '.jpg' })
+            });
+        }
+        return returnList;
     });
 }
 

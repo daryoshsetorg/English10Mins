@@ -11,10 +11,20 @@ import HTMLView from 'react-native-htmlview';
 import { MainImageUrl, MainSoundUrl } from '../../utilities/url';
 import { getLesson, likeLesson } from '../../assets/api/api';
 import Spinner from 'react-native-loading-spinner-overlay';
+import DeviceInfo, { getDeviceId } from 'react-native-device-info'
 
 const locale = NativeModules.I18nManager.localeIdentifier//language
 
 function Lesson(props) {
+
+  DeviceInfo.getAndroidId().then((d) => {
+    console.log(d)
+  })
+
+  DeviceInfo.getMacAddress().then((z) => {
+    console.log(z);
+    console.log(DeviceInfo.getDeviceId())
+  })
 
   Sound.setCategory('Playback');
   const [lessonId, setLessonId] = useState(props.navigation.state.params.Id);
@@ -62,8 +72,8 @@ function Lesson(props) {
           setFileExist(true);
         }
       })
-    }).catch(()=>{
-      Toast.show('error to connect to server',ErrorStyle)
+    }).catch(() => {
+      Toast.show('error to connect to server', ErrorStyle)
     });
   }
 
@@ -189,8 +199,8 @@ function Lesson(props) {
         setIsLiked(true)
       else
         setIsLiked(false)
-    }).catch(()=>{
-      Toast.show('error to connect to server',ErrorStyle);
+    }).catch(() => {
+      Toast.show('error to connect to server', ErrorStyle);
     })
   }
 
@@ -226,7 +236,7 @@ function Lesson(props) {
     if (isLiked) {
       like = <TouchableOpacity onPress={() => { handleLike(false) }}>
         <Icon android="heart" size={25}
-        color="red" />
+          color="red" />
       </TouchableOpacity>
     }
 

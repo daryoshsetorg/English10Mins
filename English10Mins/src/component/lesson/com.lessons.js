@@ -5,10 +5,12 @@ import Spinner from 'react-native-loading-spinner-overlay'
 import Icon from 'react-native-ionicons'
 import Items from '../items/com.items'
 import { getAll } from '../../assets/api/api'
+import Toast from 'react-native-root-toast';
+import { ErrorStyle } from '../../assets/styles/toast';
 
 function Lessons(props) {
 
-  const [loadEnd, SetLoadEnd] = useState(false);
+  const [loadEnd, setLoadEnd] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [data, setData] = useState([]);
   const [pageIndex, setPageIndex] = useState(1);
@@ -16,14 +18,18 @@ function Lessons(props) {
   fetchData = () => {
     let params = { index: pageIndex }
     getAll(params).then((res) => {
-      setData(res);
-      SetLoadEnd(true);
+      setData(data.concat(res));
+      setLoadEnd(true);
+      setLoadingMore(false);
+    }).catch(()=>{
+      Toast.show('faild to connect to server',ErrorStyle);
+      setLoadEnd(true);
     });
   }
 
   useEffect(() => {
     fetchData();
-  }, []);
+  },[]);
 
   sendData = (id) => {
     props.navigation.navigate("Lesson", { Id: id });
@@ -33,7 +39,7 @@ function Lessons(props) {
     var index = pageIndex + 1;
     setPageIndex(index);
     setLoadingMore(true);
-    fetchData();
+     fetchData();
   };
 
   _renderFooter = () => {
@@ -80,31 +86,35 @@ function Lessons(props) {
     return render;
   }
 
+  Lessons.navigationOptions = () => ({
+
+    headerLeft: () => null,
+    title: 'Alvin',
+    headerTitleStyle: {
+      textAlign: "left",
+      fontSize: 24
+    },
+  
+    headerRightContainerStyle: {
+      paddingRight: 10
+    },
+    headerRight: (
+      <TouchableOpacity onPress={() => props.navigation.navigate("Search")}>
+        <Icon name="search" left={20} />
+      </TouchableOpacity>
+    )
+  
+  });
+
   return (
     <SafeAreaView>
       {beforRender()}
     </SafeAreaView>
   )
+
+  
 }
 
-Lessons.navigationOptions = () => ({
 
-  headerLeft: () => null,
-  title: 'Alvin',
-  headerTitleStyle: {
-    textAlign: "left",
-    fontSize: 24
-  },
-
-  headerRightContainerStyle: {
-    paddingRight: 10
-  },
-  headerRight: (
-    <TouchableOpacity onPress={() => props.navigation.navigate("Search")}>
-      <Icon name="search" left={20} />
-    </TouchableOpacity>
-  )
-
-});
 
 export default Lessons

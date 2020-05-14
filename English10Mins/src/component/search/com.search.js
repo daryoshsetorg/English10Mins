@@ -1,9 +1,9 @@
-import React, { useState, useRef } from 'react';
-import { View, TouchableOpacity, TextInput, FlatList, NativeModules } from 'react-native'
+import React, { useState, useRef, useEffect } from 'react';
+import { View, TouchableOpacity, TextInput, FlatList, NativeModules, Animated } from 'react-native'
 import Styles from '../../assets/styles/search'
 import Icon from 'react-native-ionicons'
 import Items from '../items/com.items'
-import { InfoStyle } from '../../assets/styles/toast'
+import { InfoStyle, ErrorStyle } from '../../assets/styles/toast'
 import Toast from 'react-native-root-toast'
 import Spinner from 'react-native-loading-spinner-overlay';
 import { searchLessons } from '../../assets/api/api'
@@ -12,32 +12,43 @@ const locale = NativeModules.I18nManager.localeIdentifier
 
 function Search(props) {
 
-  const [loadEnd, SetLoadEnd] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [loadEnd, setLoadEnd] = useState(true);
   const [typed, setTyped] = useState(false);
   const [data, setData] = useState([]);
+  const [pageIndex, setPageIndex] = useState(1);
+
+  let searchedText = '';
 
   const searchRef = useRef(null);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
 
-  function _goBack() {
+  useEffect(() => {
+    Animated.timing(
+      fadeAnim, { useNativeDriver: true }
+    ).start();
+
+  }, []);
+
+  function goBack() {
     props.navigation.goBack();
   }
 
   function _changeText(value) {
-
+    searchedText = value;
     if (value.length > 0) {
       if (value.length > 3) {
         setTyped(true);
-        _getData(value);
+        fetchData();
       }
       else {
-        Toast.show('less than three', InfoStyle)
+        Toast.show('less than three character', InfoStyle)
       }
     }
     else {
       setTyped(false);
       setData([]);
     }
-
   }
 
   function _cancleButton() {
@@ -56,38 +67,44 @@ function Search(props) {
     setData([]);
   }
 
-  function _getData(value) {
-
-    SetLoadEnd(false);
-    setData([{
-      Id: 0,
-      Title: 'test01test01test01test01test01test01test01test01test01test01test01test01test01test01test01test01test01test01test01test01test01test01',
-      ImgUrl: '0'
-    },
-    {
-      Id: 1,
-      Title: 'test02',
-      ImgUrl: '0'
-    },
-    {
-      Id: 2,
-      Title: 'test02',
-      ImgUrl: '0'
-    },
-    {
-      Id: 3,
-      Title: 'test02',
-      ImgUrl: '0'
-    }])
-    SetLoadEnd(true);
-  }
-
-  function fetchData(value) {
-    let params = { title: value }
+  function fetchData() {
+    let params = { Title: searchedText, PageIndex: pageIndex }
     searchLessons(params).then((res) => {
-      setData(res);
+      setData(data.concat(res));
+      setLoadEnd(true);
+    }).catch(() => {
+      Toast.show('faild to load data', ErrorStyle);
+      setLoadEnd(true);
     })
   }
+
+  handleLoadMore = () => {
+    var index = pageIndex + 1;
+    setPageIndex(index);
+    setLoadingMore(true);
+    fetchData();
+  };
+
+  _renderFooter = () => {
+    if (!loadingMore) return null;
+
+    return (
+      <View
+        style={{
+          position: 'relative',
+          width: '100%',
+          height: 100,
+          paddingVertical: 20,
+          borderTopWidth: 1,
+          marginTop: 10,
+          marginBottom: 10,
+          borderColor: '#ccc'
+        }}
+      >
+        <ActivityIndicator animating size="large" />
+      </View>
+    );
+  };
 
   function renderFlat() {
     let returnList = <Spinner
@@ -101,6 +118,9 @@ function Search(props) {
         data={data}
         renderItem={({ item }) => Items(item)}
         keyExtractor={item => item.ID}
+        // onEndReachedThreshold={0.5}
+        // onEndReached={handleLoadMore}
+        // ListFooterComponent={_renderFooter}
         style={{ marginTop: 10 }}
       />
 
@@ -120,14 +140,13 @@ function Search(props) {
     <View>
       <View style={Styles.heaerMainSectin}>
         <View style={Styles.headerBackSection}>
-          <TouchableOpacity onPress={() => { _goBack() }}>
+          <TouchableOpacity onPress={() => { goBack() }}>
             {_backButton()}
           </TouchableOpacity>
         </View>
         <View style={Styles.headerSearchSection}>
           <TextInput
             ref={searchRef}
-            onTouchStart={() => { console.log('touch') }}
             onChangeText={(val) => { _changeText(val) }}
             placeholder={'Search...'}
             style={{ width: '100%', fontSize: 20 }} />
