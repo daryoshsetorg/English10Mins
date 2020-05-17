@@ -11,20 +11,12 @@ import HTMLView from 'react-native-htmlview';
 import { MainImageUrl, MainSoundUrl } from '../../utilities/url';
 import { getLesson, likeLesson } from '../../assets/api/api';
 import Spinner from 'react-native-loading-spinner-overlay';
-import DeviceInfo, { getDeviceId } from 'react-native-device-info'
+
+import { ConnectToServer, PlaySound, LoadSound } from '../../utilities/errorsMessages'
 
 const locale = NativeModules.I18nManager.localeIdentifier//language
 
 function Lesson(props) {
-
-  DeviceInfo.getAndroidId().then((d) => {
-    console.log(d)
-  })
-
-  DeviceInfo.getMacAddress().then((z) => {
-    console.log(z);
-    console.log(DeviceInfo.getDeviceId())
-  })
 
   Sound.setCategory('Playback');
   const [lessonId, setLessonId] = useState(props.navigation.state.params.Id);
@@ -34,10 +26,9 @@ function Lesson(props) {
 
   const [whoosh] = useState(new Sound(soundUrl, null, (error) => {
     if (error) {
-      Toast.show('Error to Load mp3', ErrorStyle);
+      Toast.show(LoadSound, ErrorStyle);
       return;
     }
-
   }));
 
   const [current, setCurrent] = useState(0);
@@ -53,27 +44,40 @@ function Lesson(props) {
   const [loadEnd, setLoadEnd] = useState(false);
   const [fileExist, setFileExist] = useState(false);
 
+  let currentType = 0//for next and preve button
+
   useEffect(() => {
     Animated.timing(
       fadeAnim, { useNativeDriver: true }
     ).start();
 
-    fetchData();
+    fetchData(lessonId);
   }, []);
 
-  function fetchData() {
-    let params = { Id: lessonId }
+  function fetchData(id) {
+
+    let params = { Id: id, Type: currentType }
     getLesson(params).then((res) => {
+
+      if (currentType != 0)//next or prev button clicked
+      {
+        setLessonId(res.Id);
+        currentType = 0;
+        fetchData(res.Id);
+      }
+
       setLesson(res);
-      setImageUrl({ uri: MainImageUrl + "/" + lessonId + ".jpg" });
+      setImageUrl({ uri: MainImageUrl + "/" + id + ".jpg" });
       setLoadEnd(true);
       RNFS.exists(`${RNFS.DocumentDirectoryPath}/${fileName}`).then((exist) => {
         if (exist) {
           setFileExist(true);
         }
-      })
+      });
+
     }).catch(() => {
-      Toast.show('error to connect to server', ErrorStyle)
+      Toast.show(ConnectToServer, ErrorStyle)
+      setLoadEnd(true);
     });
   }
 
@@ -118,11 +122,10 @@ function Lesson(props) {
         }).catch(() => {
           setIsDownloaded(false);
           setLoadEnd(true);
-          Toast.show('error to connect to server', ErrorStyle);
+          Toast.show(ConnectToServer, ErrorStyle);
         });
       }
     })
-
   }
 
   function downloadFileProgress(data) {
@@ -149,7 +152,7 @@ function Lesson(props) {
 
     whoosh.play((success) => {
       if (!success) {
-        Toast.show('cant play song', ErrorStyle)
+        Toast.show(PlaySound, ErrorStyle)
       }
       else {
       }
@@ -182,14 +185,16 @@ function Lesson(props) {
 
   function handleNext() {
     setLoadEnd(false);
-    setLessonId(2);
-    fetchData();
+    setImageUrl('');
+    currentType = 1;//1 for next
+    fetchData(lessonId);
   }
 
   function handlePreve() {
     setLoadEnd(false);
-    setLessonId(1);
-    fetchData();
+    setImageUrl('');
+    currentType = -1;//-1 for preve
+    fetchData(lessonId);
   }
 
   function handleLike(isLike) {
@@ -200,7 +205,7 @@ function Lesson(props) {
       else
         setIsLiked(false)
     }).catch(() => {
-      Toast.show('error to connect to server', ErrorStyle);
+      Toast.show(ConnectToServer, ErrorStyle);
     })
   }
 

@@ -25,10 +25,13 @@ const stack = createStackNavigator({
 });
 
 const AppContainer = createAppContainer(stack);
-export default function Main(){
+
+ function Main(){
   return (
     <>
            <AppContainer />
     </>
   )
 }
+
+export default Main;

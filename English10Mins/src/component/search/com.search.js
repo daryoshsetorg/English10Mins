@@ -7,6 +7,7 @@ import { InfoStyle, ErrorStyle } from '../../assets/styles/toast'
 import Toast from 'react-native-root-toast'
 import Spinner from 'react-native-loading-spinner-overlay';
 import { searchLessons } from '../../assets/api/api'
+import {ConnectToServer} from '../../utilities/errorsMessages'
 
 const locale = NativeModules.I18nManager.localeIdentifier
 
@@ -27,7 +28,6 @@ function Search(props) {
     Animated.timing(
       fadeAnim, { useNativeDriver: true }
     ).start();
-
   }, []);
 
   function goBack() {
@@ -73,7 +73,7 @@ function Search(props) {
       setData(data.concat(res));
       setLoadEnd(true);
     }).catch(() => {
-      Toast.show('faild to load data', ErrorStyle);
+      Toast.show(ConnectToServer, ErrorStyle);
       setLoadEnd(true);
     })
   }

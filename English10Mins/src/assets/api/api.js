@@ -1,7 +1,9 @@
 import Axios from 'axios'
 import { MainLesson, MainLessons, SearchLessons, LikeLessons } from '../../utilities/url'
+import DeviceInfo, { getDeviceId } from 'react-native-device-info'
 
 const pageSize = 5;
+var androidId = ''
 
 export function getAll(params) {
     let returnList = []
@@ -16,7 +18,12 @@ export function getAll(params) {
 }
 
 export function getLesson(params) {
-    return Axios.get(MainLesson + "/" + params.Id).then((res) => {
+
+    DeviceInfo.getAndroidId().then((d) => {
+        androidId = d;
+    });
+
+    return Axios.get(MainLesson + "/" + params.Id + "/" + params.Type + "/" + androidId).then((res) => {
         return res.data
     });
 }
@@ -37,7 +44,7 @@ export function searchLessons(params) {
 
 export function likeLesson(params) {
     if (params.IsLike) {
-        return Axios.get(LikeLessons + "/" + params.Id).then((res) => {
+        return Axios.get(LikeLessons + "/" + params.Id + "/" + params.AndroidId).then((res) => {
             return res.data
         });
     } else {

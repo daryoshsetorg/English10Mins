@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react'
 import { View, Image, Animated } from 'react-native'
 import Styles from '../../assets/styles/welcome'
 
-
-
 function Welcome(props) {
   const [fadeAnim] = useState(new Animated.Value(0));
 
@@ -21,8 +19,6 @@ function Welcome(props) {
       props.navigation.navigate("Main")
     }, 2500);
   }, []);
-
-
 
   return (
     <View style={Styles.main}>
@@ -48,4 +44,5 @@ function Welcome(props) {
 Welcome.navigationOptions = () => ({
   headerShown: false
 });
+
 export default Welcome;

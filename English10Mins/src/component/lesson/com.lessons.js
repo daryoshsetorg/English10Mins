@@ -1,45 +1,55 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ActivityIndicator, FlatList, TouchableOpacity, Image, SafeAreaView } from 'react-native'
-
+import { View, ActivityIndicator, FlatList, TouchableOpacity, SafeAreaView } from 'react-native'
 import Spinner from 'react-native-loading-spinner-overlay'
 import Icon from 'react-native-ionicons'
 import Items from '../items/com.items'
 import { getAll } from '../../assets/api/api'
 import Toast from 'react-native-root-toast';
 import { ErrorStyle } from '../../assets/styles/toast';
+import { ConnectToServer } from '../../utilities/errorsMessages'
 
 function Lessons(props) {
 
   const [loadEnd, setLoadEnd] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [data, setData] = useState([]);
-  const [pageIndex, setPageIndex] = useState(1);
+  const [pageIndex, setPageIndex] = useState(0);
+  const [dontLoadMore, setDontLoadMore] = useState(false);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   fetchData = () => {
     let params = { index: pageIndex }
     getAll(params).then((res) => {
-      setData(data.concat(res));
-      setLoadEnd(true);
-      setLoadingMore(false);
-    }).catch(()=>{
-      Toast.show('faild to connect to server',ErrorStyle);
+      if (res.length > 0) {
+        setData(data.concat(res));
+        console.log(data)
+        setLoadEnd(true);
+        setLoadingMore(false);
+      }
+      else {
+        setDontLoadMore(true);
+      }
+
+    }).catch(() => {
+      Toast.show(ConnectToServer, ErrorStyle);
       setLoadEnd(true);
     });
   }
-
-  useEffect(() => {
-    fetchData();
-  },[]);
 
   sendData = (id) => {
     props.navigation.navigate("Lesson", { Id: id });
   }
 
-  _handleLoadMore = () => {
-    var index = pageIndex + 1;
-    setPageIndex(index);
-    setLoadingMore(true);
-     fetchData();
+  handleLoadMore = () => {
+    if (!dontLoadMore) {
+      var index = pageIndex + 1;
+      setPageIndex(index);
+      setLoadingMore(true);
+      fetchData();
+    }
   };
 
   _renderFooter = () => {
@@ -63,7 +73,7 @@ function Lessons(props) {
     );
   };
 
-  beforRender = () => {
+  _beforRender = () => {
     let render =
       <Spinner
         visible={true}
@@ -78,7 +88,7 @@ function Lessons(props) {
           renderItem={({ item }) => Items(item)}
           keyExtractor={item => item.ID}
           onEndReachedThreshold={0.5}
-          onEndReached={_handleLoadMore}
+          onEndReached={handleLoadMore}
           ListFooterComponent={_renderFooter}
           // ListHeaderComponent={Header}
           style={{ marginTop: 10 }}
@@ -94,7 +104,7 @@ function Lessons(props) {
       textAlign: "left",
       fontSize: 24
     },
-  
+
     headerRightContainerStyle: {
       paddingRight: 10
     },
@@ -103,18 +113,15 @@ function Lessons(props) {
         <Icon name="search" left={20} />
       </TouchableOpacity>
     )
-  
+
   });
 
   return (
     <SafeAreaView>
-      {beforRender()}
+      {_beforRender()}
     </SafeAreaView>
   )
 
-  
 }
-
-
 
 export default Lessons
