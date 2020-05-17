@@ -22,7 +22,7 @@ function Lesson(props) {
   const [lessonId, setLessonId] = useState(props.navigation.state.params.Id);
   const [fileName] = useState(lessonId + ".mp3");
   const [soundUrl] = useState(MainSoundUrl + "/" + fileName);
-  const [imageUrl, setImageUrl] = useState({ uri: MainImageUrl + "/" + lessonId + ".jpg" });
+  const [imageUrl, setImageUrl] = useState({ uri: MainImageUrl + "/" + lessonId + ".jpg" + '?random_number=' + new Date().getTime() });
 
   const [whoosh] = useState(new Sound(soundUrl, null, (error) => {
     if (error) {
@@ -67,7 +67,7 @@ function Lesson(props) {
       }
 
       setLesson(res);
-      setImageUrl({ uri: MainImageUrl + "/" + id + ".jpg" });
+      setImageUrl({ uri: MainImageUrl + "/" + id + ".jpg"+ '?random_number='+ new Date().getTime() });
       setLoadEnd(true);
       RNFS.exists(`${RNFS.DocumentDirectoryPath}/${fileName}`).then((exist) => {
         if (exist) {

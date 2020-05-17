@@ -7,7 +7,7 @@ export default function Items(params){
 
     let imageUrl;
     if (params.ImageUrl != null)
-      imageUrl = { uri: MainImageUrl +"/"+ params.ImageUrl }
+      imageUrl = { uri: MainImageUrl +"/"+ params.ImageUrl+ '?random_number='+ new Date().getTime() }
     else
       imageUrl = require('../../assets/images/noImage.png');
 

@@ -8,21 +8,27 @@ import Toast from 'react-native-root-toast';
 import { ErrorStyle } from '../../assets/styles/toast';
 import { ConnectToServer } from '../../utilities/errorsMessages'
 
+var pageIndex = 0;
+
 function Lessons(props) {
 
   const [loadEnd, setLoadEnd] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [data, setData] = useState([]);
-  const [pageIndex, setPageIndex] = useState(0);
   const [dontLoadMore, setDontLoadMore] = useState(false);
+  const [onEndReached, setOnEndReached] = useState(true);
+  
 
   useEffect(() => {
     fetchData();
   }, []);
 
   fetchData = () => {
+    console.log('fetch----------')
     let params = { index: pageIndex }
     getAll(params).then((res) => {
+      console.log(res)
+      console.log('==============================')
       if (res.length > 0) {
         setData(data.concat(res));
         console.log(data)
@@ -36,6 +42,7 @@ function Lessons(props) {
     }).catch(() => {
       Toast.show(ConnectToServer, ErrorStyle);
       setLoadEnd(true);
+      setDontLoadMore(true);
     });
   }
 
@@ -44,9 +51,10 @@ function Lessons(props) {
   }
 
   handleLoadMore = () => {
-    if (!dontLoadMore) {
-      var index = pageIndex + 1;
-      setPageIndex(index);
+    console.log('haaaaaaaaaaandle')
+    if (!dontLoadMore && !onEndReached) {
+      console.log('iiiiiiiiiin handle more')
+      pageIndex += 1;
       setLoadingMore(true);
       fetchData();
     }
@@ -88,6 +96,7 @@ function Lessons(props) {
           renderItem={({ item }) => Items(item)}
           keyExtractor={item => item.ID}
           onEndReachedThreshold={0.5}
+          onMomentumScrollBegin={() => { setOnEndReached(false) }}
           onEndReached={handleLoadMore}
           ListFooterComponent={_renderFooter}
           // ListHeaderComponent={Header}

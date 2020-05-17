@@ -6,6 +6,7 @@ const pageSize = 5;
 var androidId = ''
 
 export function getAll(params) {
+    console.log(params.index)
     let returnList = []
     return Axios.get(MainLessons + "/" + params.index + "/" + pageSize).then((d) => {
 
