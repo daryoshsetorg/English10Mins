@@ -17,21 +17,17 @@ function Lessons(props) {
   const [data, setData] = useState([]);
   const [dontLoadMore, setDontLoadMore] = useState(false);
   const [onEndReached, setOnEndReached] = useState(true);
-  
+
 
   useEffect(() => {
     fetchData();
   }, []);
 
   fetchData = () => {
-    console.log('fetch----------')
     let params = { index: pageIndex }
     getAll(params).then((res) => {
-      console.log(res)
-      console.log('==============================')
       if (res.length > 0) {
         setData(data.concat(res));
-        console.log(data)
         setLoadEnd(true);
         setLoadingMore(false);
       }
@@ -51,9 +47,7 @@ function Lessons(props) {
   }
 
   handleLoadMore = () => {
-    console.log('haaaaaaaaaaandle')
     if (!dontLoadMore && !onEndReached) {
-      console.log('iiiiiiiiiin handle more')
       pageIndex += 1;
       setLoadingMore(true);
       fetchData();
@@ -94,7 +88,7 @@ function Lessons(props) {
         <FlatList
           data={data}
           renderItem={({ item }) => Items(item)}
-          keyExtractor={item => item.ID}
+          keyExtractor={item => item.Id}
           onEndReachedThreshold={0.5}
           onMomentumScrollBegin={() => { setOnEndReached(false) }}
           onEndReached={handleLoadMore}

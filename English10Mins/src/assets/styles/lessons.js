@@ -1,4 +1,4 @@
-import { StyleSheet,NativeModules } from 'react-native'
+import { StyleSheet, NativeModules } from 'react-native'
 
 const locale = NativeModules.I18nManager.localeIdentifier
 
@@ -10,17 +10,17 @@ if (locale == 'fa_IR')
 export default StyleSheet.create({
   mainSection: {
     flex: 1,
-    flexDirection:'row'
+    flexDirection: 'row'
   },
-  logoSection:{
-      flex:10,
-      backgroundColor:'green',
-      justifyContent:'center',
-      alignItems:'center'
+  logoSection: {
+    flex: 10,
+    backgroundColor: 'green',
+    justifyContent: 'center',
+    alignItems: 'center'
   },
-  searchSecton:{
-      flex:2,
-      backgroundColor:'gray'
+  searchSecton: {
+    flex: 2,
+    backgroundColor: 'gray'
   },
   mainContainer: {
     flex: 1,
@@ -51,12 +51,26 @@ export default StyleSheet.create({
   textContainer: {
     height: 60,
     padding: 5,
-    overflow:'hidden'
+    overflow: 'hidden',
+    display: 'flex',
+    flexDirection: direction
+  },
+  titleContainer: {
+    flex: 9
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     flexWrap: 'wrap',
     overflow: 'hidden',
+  },
+  likeContainer: {
+    flex: 1,
+    justifyContent:'center',
+    alignItems:'center'
+  },
+  likeCount: {
+    flex: 1,
+    backgroundColor: 'red'
   }
 })

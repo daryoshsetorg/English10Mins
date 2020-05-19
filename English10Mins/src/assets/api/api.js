@@ -6,12 +6,12 @@ const pageSize = 5;
 var androidId = ''
 
 export function getAll(params) {
-    console.log(params.index)
+
     let returnList = []
     return Axios.get(MainLessons + "/" + params.index + "/" + pageSize).then((d) => {
 
         d.data.forEach(element => {
-            returnList.push({ Id: element.Id, Title: element.Title, ImageUrl: element.Id + '.jpg' })
+            returnList.push({ Id: element.Id, Title: element.Title, ImageUrl: element.Id + '.jpg', LikeCount: element.LikeCount })
         });
 
         return returnList;
@@ -30,13 +30,13 @@ export function getLesson(params) {
 }
 
 export function searchLessons(params) {
-    console.log(params)
+    
     let returnList = [];
     return Axios.get(SearchLessons + "/" + params.Title + "/" + params.PageIndex + "/" + pageSize).then((res) => {
 
         if (res.data.length > 0) {
             res.data.forEach(element => {
-                returnList.push({ Id: element.Id, Title: element.Title, ImageUrl: element.Id + '.jpg' })
+                returnList.push({ Id: element.Id, Title: element.Title, ImageUrl: element.Id + '.jpg', LikeCount: element.LikeCount })
             });
         }
         return returnList;
