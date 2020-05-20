@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, TouchableOpacity, Slider, Animated, NativeModules, dev } from 'react-native'
+import { View, Text, TouchableOpacity, Slider, Animated, NativeModules, Dimensions } from 'react-native'
 import HeaderImageScrollView, { TriggeringView } from 'react-native-image-header-scroll-view';
 import Icon from 'react-native-ionicons'
 import Sound from 'react-native-sound'
@@ -15,8 +15,13 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import { ConnectToServer, PlaySound, LoadSound } from '../../utilities/errorsMessages'
 
 const locale = NativeModules.I18nManager.localeIdentifier//language
+let imageScroll = 200;
 
 function Lesson(props) {
+
+  if (Dimensions.get('window').width > 500) {
+    imageScroll = 300;
+  }
 
   Sound.setCategory('Playback');
   const [lessonId, setLessonId] = useState(props.navigation.state.params.Id);
@@ -67,8 +72,12 @@ function Lesson(props) {
       }
 
       setLesson(res);
-      setImageUrl({ uri: MainImageUrl + "/" + id + ".jpg"+ '?random_number='+ new Date().getTime() });
+      setImageUrl({ uri: MainImageUrl + "/" + id + ".jpg" + '?random_number=' + new Date().getTime() });
       setLoadEnd(true);
+
+      if (res.Liked)
+        setIsLiked(true);
+
       RNFS.exists(`${RNFS.DocumentDirectoryPath}/${fileName}`).then((exist) => {
         if (exist) {
           setFileExist(true);
@@ -200,10 +209,7 @@ function Lesson(props) {
   function handleLike(isLike) {
     let params = { IsLike: isLike, Id: lessonId }
     likeLesson(params).then(() => {
-      if (isLike)
-        setIsLiked(true)
-      else
-        setIsLiked(false)
+      fetchData(lessonId);
     }).catch(() => {
       Toast.show(ConnectToServer, ErrorStyle);
     })
@@ -396,9 +402,10 @@ function Lesson(props) {
     if (loadEnd) {
       mainReturn =
         <HeaderImageScrollView
-          maxHeight={200}
+          maxHeight={imageScroll}
           minHeight={80}
           headerImage={imageUrl}
+          maximumZoomScale={2}
           maxOverlayOpacity={0.5}
           foregroundParallaxRatio={3}
           renderFixedForeground={() => (_fixedTop())}
@@ -412,7 +419,9 @@ function Lesson(props) {
             {_player()}
 
             <View style={Styles.title}>
-              <Text style={Styles.titleText}>{lesson.Title} </Text>
+              <Text style={Styles.titleText}>
+                {lesson.Title}
+              </Text>
             </View>
 
             <View style={Styles.htmlView}>

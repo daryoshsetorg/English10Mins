@@ -1,11 +1,21 @@
-import { StyleSheet, NativeModules } from 'react-native'
+import { StyleSheet, NativeModules, Dimensions } from 'react-native'
 
 const locale = NativeModules.I18nManager.localeIdentifier
 
 let direction = 'row'
+let itemContainerMargin = 10;
+let itemContainerHeight = 250;
+let imageContainerHeight = 180;
 
 if (locale == 'fa_IR')
   direction = 'row-reverse'
+
+if (Dimensions.get('window').width > 500) {
+  itemContainerMargin = 50;
+  itemContainerHeight = 350;
+  imageContainerHeight = 280;
+}
+
 
 export default StyleSheet.create({
   mainSection: {
@@ -27,9 +37,9 @@ export default StyleSheet.create({
     justifyContent: 'center',
   },
   itemContainer: {
-    height: 250,
-    marginLeft: 20,
-    marginRight: 20,
+    height: itemContainerHeight,
+    marginLeft: itemContainerMargin,
+    marginRight: itemContainerMargin,
     marginBottom: 10,
     borderColor: '#ccc',
     borderWidth: 1,
@@ -39,7 +49,7 @@ export default StyleSheet.create({
     borderBottomLeftRadius: 5,
   },
   imageContainer: {
-    height: 180,
+    height: imageContainerHeight,
   },
   image: {
     flex: 1,
@@ -66,8 +76,8 @@ export default StyleSheet.create({
   },
   likeContainer: {
     flex: 1,
-    justifyContent:'center',
-    alignItems:'center'
+    justifyContent: 'center',
+    alignItems: 'center'
   },
   likeCount: {
     flex: 1,

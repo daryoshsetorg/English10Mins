@@ -6,11 +6,7 @@ import Icon from 'react-native-ionicons'
 
 export default function Items(params) {
 
-  let imageUrl;
-  if (params.ImageUrl != null)
-    imageUrl = { uri: MainImageUrl + "/" + params.ImageUrl + '?random_number=' + new Date().getTime() }
-  else
-    imageUrl = require('../../assets/images/noImage.png');
+  let imageUrl = { uri: MainImageUrl + "/" + params.Id + '.jpg' + '?random_number=' + new Date().getTime() }
 
   return (
     <View style={Styles.mainContainer}>
@@ -32,10 +28,10 @@ export default function Items(params) {
             </TouchableOpacity>
           </View>
           <View style={Styles.likeContainer}>
-          <Icon android="heart" color="red" size={25} />
-          <Text>
-            
-            {params.LikeCount}
+            <Icon android="heart" color="red" size={25} />
+            <Text>
+
+              {params.LikeCount}
             </Text>
           </View>
 

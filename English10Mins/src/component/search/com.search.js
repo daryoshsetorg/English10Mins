@@ -1,15 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, TouchableOpacity, TextInput, FlatList, NativeModules, Animated } from 'react-native'
+import { View, TouchableOpacity, TextInput, Text, FlatList, NativeModules, Animated, ActivityIndicator } from 'react-native'
 import Styles from '../../assets/styles/search'
 import Icon from 'react-native-ionicons'
 import Items from '../items/com.items'
 import { InfoStyle, ErrorStyle } from '../../assets/styles/toast'
 import Toast from 'react-native-root-toast'
-import Spinner from 'react-native-loading-spinner-overlay';
 import { searchLessons } from '../../assets/api/api'
-import {ConnectToServer} from '../../utilities/errorsMessages'
+import { ConnectToServer } from '../../utilities/errorsMessages'
 
 const locale = NativeModules.I18nManager.localeIdentifier
+var pageIndex = 0;
+var searchedText = '';
 
 function Search(props) {
 
@@ -17,10 +18,9 @@ function Search(props) {
   const [loadEnd, setLoadEnd] = useState(true);
   const [typed, setTyped] = useState(false);
   const [data, setData] = useState([]);
-  const [pageIndex, setPageIndex] = useState(1);
-
-  let searchedText = '';
-
+  const [onEndReached, setOnEndReached] = useState(true);
+  const [notFound, setNotFound] = useState(false);
+  
   const searchRef = useRef(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -43,6 +43,7 @@ function Search(props) {
       }
       else {
         Toast.show('less than three character', InfoStyle)
+        setNotFound(false);
       }
     }
     else {
@@ -56,33 +57,50 @@ function Search(props) {
     if (!typed)
       return <></>
 
-    return (<TouchableOpacity onPress={() => { _cancleButtonClick() }}>
+    return (<TouchableOpacity onPress={() => { cancleButtonClick() }}>
       <Icon android={'close'}></Icon>
     </TouchableOpacity>)
 
   }
 
-  function _cancleButtonClick() {
+  function cancleButtonClick() {
+    setNotFound(false);
     searchRef.current.clear();
     setData([]);
   }
 
   function fetchData() {
+    console.log(searchedText)
     let params = { Title: searchedText, PageIndex: pageIndex }
     searchLessons(params).then((res) => {
-      setData(data.concat(res));
+
+      if (res.length == 0)
+        setNotFound(true);
+      else
+        setNotFound(false);
+
+      if (loadingMore)
+        setData(data.concat(res));
+      else
+        setData(res)
+
+      setLoadingMore(false);
       setLoadEnd(true);
-    }).catch(() => {
+    }).catch((res) => {
+
       Toast.show(ConnectToServer, ErrorStyle);
       setLoadEnd(true);
+      setLoadingMore(false);
     })
   }
 
   handleLoadMore = () => {
-    var index = pageIndex + 1;
-    setPageIndex(index);
-    setLoadingMore(true);
-    fetchData();
+    if (!onEndReached) {
+      console.log('handle moreeeee')
+      pageIndex += 1;
+      setLoadingMore(true);
+      fetchData();
+    }
   };
 
   _renderFooter = () => {
@@ -106,21 +124,21 @@ function Search(props) {
     );
   };
 
-  function renderFlat() {
-    let returnList = <Spinner
-      visible={true}
-      textContent={'Loading..'}
-      textStyle={{ color: '#fff' }}
-    />
+  function _renderFlat() {
+    let returnList = <ActivityIndicator />
 
-    if (loadEnd) {
+    if (notFound)
+      returnList = <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 30 }}><Text>Not Found</Text></View>
+
+    if (loadEnd && !notFound) {
       returnList = <FlatList
         data={data}
         renderItem={({ item }) => Items(item)}
-        keyExtractor={item => item.ID}
-        // onEndReachedThreshold={0.5}
-        // onEndReached={handleLoadMore}
-        // ListFooterComponent={_renderFooter}
+        keyExtractor={item => item.Id}
+        onEndReachedThreshold={0.5}
+        onEndReached={handleLoadMore}
+        onMomentumScrollBegin={() => { setOnEndReached(false) }}
+        ListFooterComponent={_renderFooter}
         style={{ marginTop: 10 }}
       />
 
@@ -159,13 +177,13 @@ function Search(props) {
 
       </View>
       <View>
-        {renderFlat()}
+        {_renderFlat()}
       </View>
     </View>
   )
 }
 
-Search.navigationOptions = ({ navigation }) => ({
+Search.navigationOptions = () => ({
   headerShown: false
 });
 

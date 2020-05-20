@@ -18,7 +18,6 @@ function Lessons(props) {
   const [dontLoadMore, setDontLoadMore] = useState(false);
   const [onEndReached, setOnEndReached] = useState(true);
 
-
   useEffect(() => {
     fetchData();
   }, []);
