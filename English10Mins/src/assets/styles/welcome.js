@@ -35,7 +35,9 @@ export default  StyleSheet.create({
   },
   bottomLeft: {
     flex: 8,
-    backgroundColor: purple
+    backgroundColor: purple,
+    alignItems:'flex-end',
+    justifyContent:'flex-end'
   },
   logoArea: {
     flex: 1,
