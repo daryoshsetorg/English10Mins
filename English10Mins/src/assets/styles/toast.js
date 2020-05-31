@@ -1,7 +1,7 @@
 import Toast from 'react-native-root-toast'
 
 export const ErrorStyle = {
-    duration: Toast.durations.LONG,
+    duration: Toast.durations.SHORT,
     position: Toast.positions.BOTTOM,
     shadow: true,
     animation: true,

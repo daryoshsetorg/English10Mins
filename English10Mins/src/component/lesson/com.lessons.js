@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, ActivityIndicator, FlatList, TouchableOpacity, SafeAreaView } from 'react-native'
+import { BackHandler, View, ActivityIndicator, FlatList, TouchableOpacity, SafeAreaView } from 'react-native'
 import Spinner from 'react-native-loading-spinner-overlay'
 import Icon from 'react-native-ionicons'
 import Items from '../items/com.items'
@@ -9,6 +9,7 @@ import { ErrorStyle } from '../../assets/styles/toast';
 import { ConnectToServer } from '../../utilities/errorsMessages'
 
 var pageIndex = 0;
+var exitApp = 0;
 
 function Lessons(props) {
 
@@ -19,7 +20,13 @@ function Lessons(props) {
   const [onEndReached, setOnEndReached] = useState(true);
 
   useEffect(() => {
+    const handler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      deviceBackButton,
+    );
     fetchData();
+
+    return () => handler.remove();
   }, []);
 
   fetchData = () => {
@@ -29,9 +36,11 @@ function Lessons(props) {
         setData(data.concat(res));
         setLoadEnd(true);
         setLoadingMore(false);
+        exitApp=0;
       }
       else {
         setDontLoadMore(true);
+        setLoadingMore(false);
       }
 
     }).catch(() => {
@@ -41,11 +50,22 @@ function Lessons(props) {
     });
   }
 
+  function deviceBackButton() {
+    if (exitApp == 0) {
+      exitApp = 1;
+      Toast.show("Press Back Again To Exit", ErrorStyle);
+    }
+    else
+      BackHandler.exitApp();
+
+    return true;
+  }
+
   sendData = (id) => {
     props.navigation.navigate("Lesson", { Id: id });
   }
 
-  handleLoadMore = () => {
+ function handleLoadMore () {
     if (!dontLoadMore && !onEndReached) {
       pageIndex += 1;
       setLoadingMore(true);

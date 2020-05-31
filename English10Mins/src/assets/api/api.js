@@ -8,7 +8,11 @@ var androidId = ''
 export function getAll(params) {
     return Axios.get(MainLessons + "/" + params.index + "/" + pageSize).then((res) => {
         return res.data;
-    });
+    }).catch(()=>{
+        return [];
+    })
+
+    ;
 }
 
 export function getLesson(params) {

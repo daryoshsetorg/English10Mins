@@ -1,16 +1,17 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, TouchableOpacity, Slider, Animated, NativeModules, Dimensions } from 'react-native'
+import { StyleSheet, BackHandler, View, Text, TouchableOpacity, Slider, Animated, NativeModules, Dimensions } from 'react-native'
 import HeaderImageScrollView, { TriggeringView } from 'react-native-image-header-scroll-view';
 import Icon from 'react-native-ionicons'
 import Sound from 'react-native-sound'
 import RNFS from 'react-native-fs'
 import Styles from '../../assets/styles/lesson'
 import Toast from 'react-native-root-toast';
-import { ErrorStyle, SuccessStyle, infoStyle } from '../../assets/styles/toast'
+import { ErrorStyle } from '../../assets/styles/toast'
 import HTMLView from 'react-native-htmlview';
 import { MainImageUrl, MainSoundUrl } from '../../utilities/url';
 import { getLesson, likeLesson } from '../../assets/api/api';
 import Spinner from 'react-native-loading-spinner-overlay';
+import ReactNativeZoomableView from '@dudigital/react-native-zoomable-view/src/ReactNativeZoomableView';
 
 import { ConnectToServer, PlaySound, LoadSound } from '../../utilities/errorsMessages'
 
@@ -56,7 +57,15 @@ function Lesson(props) {
       fadeAnim, { useNativeDriver: true }
     ).start();
 
+    const handler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      deviceBackButton,
+    );
+
     fetchData(lessonId);
+
+    return () => handler.remove();
+
   }, []);
 
   function fetchData(id) {
@@ -84,6 +93,8 @@ function Lesson(props) {
         }
       });
 
+
+
     }).catch(() => {
       Toast.show(ConnectToServer, ErrorStyle)
       setLoadEnd(true);
@@ -97,6 +108,15 @@ function Lesson(props) {
   }, 5000);
   clearInterval(timeInterVal);
   timeInterVal = null;
+
+  function deviceBackButton() {
+    clearInterval(timeInterVal);
+    timeInterVal = null;
+    whoosh.stop();
+    whoosh.release();
+    props.navigation.goBack();
+    return true;
+  }
 
   function backToList() {
     clearInterval(timeInterVal);
@@ -115,7 +135,7 @@ function Lesson(props) {
       }
       else {
         setIsDownloaded(true);
-        SetLoadEnd(false);
+        setLoadEnd(false);
 
         RNFS.downloadFile({
           fromUrl: `${MainSoundUrl}/${fileName}`,
@@ -139,7 +159,6 @@ function Lesson(props) {
 
   function downloadFileProgress(data) {
     const percentage = ((100 * data.bytesWritten) / data.contentLength) | 0;
-    console.log(percentage)
     setDownloadPercentage(percentage);
   }
 
@@ -287,11 +306,13 @@ function Lesson(props) {
       </View>
 
       <View style={Styles.playerSlider}>
+
         <View style={Styles.playerSliderCurrent}>
           <Text style={Styles.playerSliderText}>
             {Math.round((current / 60 + Number.EPSILON) * 100) / 100}
           </Text>
         </View>
+
         <View style={Styles.playerSliderMain}>
           <Slider
             style={{ width: '100%', height: 40 }}
@@ -314,9 +335,9 @@ function Lesson(props) {
 
       </View>
 
-      <View style={Styles.playerRepeat}>
+      {/* <View style={Styles.playerRepeat}>
         {_repeatButton()}
-      </View>
+      </View> */}
 
       <View style={Styles.playerOprationLike}>
         {_likeButton()}
@@ -388,6 +409,14 @@ function Lesson(props) {
       )
   }
 
+  function _renderHtml(text) {
+    let changeText = text;
+    changeText = changeText.replace("</br>", "\n")
+    changeText = changeText.replace("<br/>", "\n")
+    changeText = changeText.replace("<br />", "\n")
+    
+    return changeText;
+  }
   function _mainReturn() {
     let mainReturn = (<Spinner
       visible={true}
@@ -424,11 +453,23 @@ function Lesson(props) {
               </Text>
             </View>
 
-            <View style={Styles.htmlView}>
-              <HTMLView value={lesson.Content} />
-            </View>
 
+            <ReactNativeZoomableView style={Styles.htmlView}
+              maxZoom={1.5}
+              minZoom={1}
+              zoomStep={0.5}
+              initialZoom={1}
+              bindToBorders={true}
+
+            >
+              <HTMLView stylesheet={htmlstyles} value={_renderHtml(lesson.Content)} />
+
+              <HTMLView value={lesson.ContentExtra == null ? "" :
+                lesson.ContentExtra} />
+            </ReactNativeZoomableView>
           </View>
+
+
 
         </ HeaderImageScrollView>
 
@@ -448,3 +489,13 @@ Lesson.navigationOptions = () => ({
 });
 
 export default Lesson;
+
+var htmlstyles = StyleSheet.create({
+
+  strong: {
+    fontWeight: 'bold',
+    fontSize: 16
+  },
+  a: {},
+  br: { padding: 0 }
+})

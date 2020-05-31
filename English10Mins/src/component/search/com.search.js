@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, TouchableOpacity, TextInput, Text, FlatList, NativeModules, Animated, ActivityIndicator } from 'react-native'
+import {SafeAreaView ,BackHandler, View, TouchableOpacity, TextInput, Text, FlatList, NativeModules, Animated, ActivityIndicator } from 'react-native'
 import Styles from '../../assets/styles/search'
 import Icon from 'react-native-ionicons'
 import Items from '../items/com.items'
@@ -20,24 +20,39 @@ function Search(props) {
   const [data, setData] = useState([]);
   const [onEndReached, setOnEndReached] = useState(true);
   const [notFound, setNotFound] = useState(false);
-  
+  const [dontLoadMore, setDontLoadMore] = useState(false);
+
   const searchRef = useRef(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+
     Animated.timing(
       fadeAnim, { useNativeDriver: true }
     ).start();
+
+    const handler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      deviceBackButton,
+    );
+
+    return () => handler.remove();
   }, []);
 
   function goBack() {
     props.navigation.goBack();
   }
 
+  function deviceBackButton() {
+    props.navigation.goBack();
+    return true;
+  }
+
   function _changeText(value) {
     searchedText = value;
     if (value.length > 0) {
       if (value.length > 3) {
+        pageIndex = 0;
         setTyped(true);
         fetchData();
       }
@@ -70,19 +85,19 @@ function Search(props) {
   }
 
   function fetchData() {
-    console.log(searchedText)
     let params = { Title: searchedText, PageIndex: pageIndex }
     searchLessons(params).then((res) => {
 
-      if (res.length == 0)
+      if (res.length > 0) {
+        setData(res);
+        setNotFound(false)
+        setDontLoadMore(false)
+      }
+      else {
         setNotFound(true);
-      else
-        setNotFound(false);
+        pageIndex = 0;
+      }
 
-      if (loadingMore)
-        setData(data.concat(res));
-      else
-        setData(res)
 
       setLoadingMore(false);
       setLoadEnd(true);
@@ -94,16 +109,35 @@ function Search(props) {
     })
   }
 
+  function handleFetch(){
+    let params = { Title: searchedText, PageIndex: pageIndex }
+    searchLessons(params).then((res) => {
+
+      if (res.length > 0) {
+        setData(data.concat(res));
+      }
+      else{
+        setDontLoadMore(true);
+      }
+     
+      setLoadingMore(false);
+      setLoadEnd(true);
+    }).catch((res) => {
+      Toast.show(ConnectToServer, ErrorStyle);
+      setLoadEnd(true);
+      setLoadingMore(false);
+    })
+  }
+
   handleLoadMore = () => {
-    if (!onEndReached) {
-      console.log('handle moreeeee')
+    if (!onEndReached && !dontLoadMore) {
       pageIndex += 1;
       setLoadingMore(true);
-      fetchData();
+      handleFetch();
     }
   };
 
-  _renderFooter = () => {
+  function _renderFooter() {
     if (!loadingMore) return null;
 
     return (
@@ -125,7 +159,7 @@ function Search(props) {
   };
 
   function _renderFlat() {
-    let returnList = <ActivityIndicator />
+    let returnList = <ActivityIndicator animating size="large" />
 
     if (notFound)
       returnList = <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 30 }}><Text>Not Found</Text></View>
@@ -139,7 +173,7 @@ function Search(props) {
         onEndReached={handleLoadMore}
         onMomentumScrollBegin={() => { setOnEndReached(false) }}
         ListFooterComponent={_renderFooter}
-        style={{ marginTop: 10 }}
+        style={{ marginTop: 2,marginBottom:20,paddingBottom:20 }}
       />
 
     }
@@ -155,7 +189,7 @@ function Search(props) {
   }
 
   return (
-    <View>
+    <SafeAreaView>
       <View style={Styles.heaerMainSectin}>
         <View style={Styles.headerBackSection}>
           <TouchableOpacity onPress={() => { goBack() }}>
@@ -173,13 +207,9 @@ function Search(props) {
           {_cancleButton()}
         </View>
       </View>
-      <View style={Styles.searchBody}>
-
-      </View>
-      <View>
         {_renderFlat()}
-      </View>
-    </View>
+      
+    </SafeAreaView>
   )
 }
 

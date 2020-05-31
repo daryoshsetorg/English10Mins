@@ -82,7 +82,7 @@ export default StyleSheet.create({
     flexDirection: direction
   },
   playerSliderText: {
-    fontSize: 14
+    fontSize: 12
   },
   playerSliderCurrent: {
     flex: 2,
@@ -95,7 +95,7 @@ export default StyleSheet.create({
     justifyContent: 'center',
   },
   playerSliderDuration: {
-    flex: 2,
+    flex: 3,
     alignItems: 'center',
     justifyContent: 'center'
   },
