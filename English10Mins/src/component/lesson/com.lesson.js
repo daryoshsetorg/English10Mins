@@ -80,6 +80,10 @@ function Lesson(props) {
         fetchData(res.Id);
       }
 
+      //set duration of sound 
+      let tt = whoosh.getDuration();
+      setDuration(tt);
+
       setLesson(res);
       setImageUrl({ uri: MainImageUrl + "/" + id + ".jpg" + '?random_number=' + new Date().getTime() });
       setLoadEnd(true);
@@ -93,25 +97,13 @@ function Lesson(props) {
         }
       });
 
-
-
     }).catch(() => {
       Toast.show(ConnectToServer, ErrorStyle)
       setLoadEnd(true);
     });
   }
 
-  var timeInterVal = setInterval(() => {
-    whoosh.getCurrentTime((seconds) => {
-      setCurrent(seconds);
-    });
-  }, 5000);
-  clearInterval(timeInterVal);
-  timeInterVal = null;
-
   function deviceBackButton() {
-    clearInterval(timeInterVal);
-    timeInterVal = null;
     whoosh.stop();
     whoosh.release();
     props.navigation.goBack();
@@ -119,8 +111,6 @@ function Lesson(props) {
   }
 
   function backToList() {
-    clearInterval(timeInterVal);
-    timeInterVal = null;
     whoosh.stop();
     whoosh.release();
     props.navigation.goBack();
@@ -163,20 +153,8 @@ function Lesson(props) {
   }
 
   function handlePlay() {
-
-    clearInterval(timeInterVal);
-    timeInterVal = null;
-
-    timeInterVal = setInterval(() => {
-      whoosh.getCurrentTime((seconds) => {
-        setCurrent(seconds);
-      })
-    }, 5000);
-
+    findTime();
     setIsPlay(true);
-
-    let tt = whoosh.getDuration();
-    setDuration(tt);
 
     whoosh.play((success) => {
       if (!success) {
@@ -184,6 +162,14 @@ function Lesson(props) {
       }
       else {
       }
+    })
+  }
+
+  function findTime() {
+    whoosh.getCurrentTime((seconds) => {
+      setCurrent(seconds);
+      if (seconds != duration)
+        findTime();
     })
   }
 
@@ -411,12 +397,10 @@ function Lesson(props) {
 
   function _renderHtml(text) {
     let changeText = text;
-    changeText = changeText.replace("</br>", "\n")
-    changeText = changeText.replace("<br/>", "\n")
-    changeText = changeText.replace("<br />", "\n")
-    
+    changeText = changeText.replace(/<br \/>/g, '\n')
     return changeText;
   }
+
   function _mainReturn() {
     let mainReturn = (<Spinner
       visible={true}
@@ -453,23 +437,20 @@ function Lesson(props) {
               </Text>
             </View>
 
-
             <ReactNativeZoomableView style={Styles.htmlView}
               maxZoom={1.5}
               minZoom={1}
               zoomStep={0.5}
               initialZoom={1}
               bindToBorders={true}
-
             >
               <HTMLView stylesheet={htmlstyles} value={_renderHtml(lesson.Content)} />
 
-              <HTMLView value={lesson.ContentExtra == null ? "" :
+              <HTMLView stylesheet={htmlstyles} value={lesson.ContentExtra == null ? "" :
                 lesson.ContentExtra} />
+
             </ReactNativeZoomableView>
           </View>
-
-
 
         </ HeaderImageScrollView>
 
@@ -492,10 +473,14 @@ export default Lesson;
 
 var htmlstyles = StyleSheet.create({
 
-  strong: {
+  h5: {
     fontWeight: 'bold',
     fontSize: 16
   },
-  a: {},
-  br: { padding: 0 }
+  strong: {
+    fontWeight: 'bold'
+  },
+  a: {
+    color: 'blue'
+  },
 })
