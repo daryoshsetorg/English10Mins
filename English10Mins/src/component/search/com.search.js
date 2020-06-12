@@ -183,9 +183,9 @@ function Search(props) {
 
   function _backButton() {
     if (locale == 'fa_IR')
-      return <Icon android={'arrow-forward-circle-sharp'}></Icon>
+      return <Icon color={'#f35f19'} android={'arrow-forward-circle-sharp'}></Icon>
     else
-      return <Icon android={'arrow-back-circle-sharp'}></Icon>
+      return <Icon color={'#f35f19'} android={'arrow-back-circle-sharp'}></Icon>
   }
 
   return (

@@ -14,7 +14,7 @@ export default function Items(params) {
         <TouchableOpacity onPress={() => {
           sendData(params.Id)
         }} style={Styles.imageContainer}>
-          <Image resizeMode='stretch' style={Styles.image} source={imageUrl} />
+          <Image resizeMode='cover' style={Styles.image} source={imageUrl} />
         </TouchableOpacity >
         <View style={Styles.textContainer}>
           <View style={Styles.titleContainer}>
@@ -24,13 +24,11 @@ export default function Items(params) {
               <Text style={Styles.title}>
                 {params.Title}
               </Text>
-
             </TouchableOpacity>
           </View>
           <View style={Styles.likeContainer}>
             <Icon android="heart" color="red" size={25} />
             <Text>
-
               {params.LikeCount}
             </Text>
           </View>

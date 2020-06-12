@@ -5,25 +5,30 @@ import DeviceInfo, { getDeviceId } from 'react-native-device-info'
 const pageSize = 5;
 var androidId = ''
 
+
+
 export function getAll(params) {
-    return Axios.get(MainLessons + "/" + params.index + "/" + pageSize).then((res) => {
-        return res.data;
-    }).catch(()=>{
-        return [];
-    })
-
-    ;
-}
-
-export function getLesson(params) {
-
     DeviceInfo.getAndroidId().then((id) => {
         androidId = id;
     });
 
-    return Axios.get(MainLesson + "/" + params.Id + "/" + params.Type + "/" + androidId).then((res) => {
-        return res.data
-    });
+    return Axios.get(MainLessons + "/" + params.index + "/" + pageSize).then((res) => {
+        return res.data;
+    }).catch(() => {
+        return [];
+    })
+
+        ;
+}
+
+export function getLesson(params) {
+
+    if (androidId != '') {
+        return Axios.get(MainLesson + "/" + params.Id + "/" + params.Type + "/" + androidId).then((res) => {
+            return res.data
+        });
+    }
+
 }
 
 export function searchLessons(params) {
@@ -33,15 +38,9 @@ export function searchLessons(params) {
 }
 
 export function likeLesson(params) {
-    if (params.IsLike) {
-        return Axios.get(LikeLessons + "/" + params.Id + "/" + params.AndroidId).then((res) => {
-            return res.data
-        });
-    } else {
-        return Axios.get(LikeLessons + "/" + params.Id).then((res) => {
-            return res.data
-        });
-    }
+    return Axios.get(LikeLessons + "/" + params.Id + "/" + androidId).then((res) => {
+        return res.data
+    });
 }
 
 

@@ -1,4 +1,3 @@
-
 import { StyleSheet } from 'react-native'
 
 const yellow="#5b369f"
@@ -9,11 +8,18 @@ export default  StyleSheet.create({
     flex: 1,
     flexDirection: 'column',
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    backgroundColor:'#f35f19'
   },
   mainClass: {
     flex: 15,
-    flexDirection: 'row'
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  logoArea:{
+    flex:1,
+    flexDirection:'row'
   },
   topRight: {
     flex: 8,
@@ -45,9 +51,14 @@ export default  StyleSheet.create({
     alignItems: 'center'
   },
   logo: {
-    width: 100,
-    height: 70,
+    width: 50,
+    height: 35,
     zIndex: 10,
     marginTop: -40,
   },
+  mainText:{
+    color:'white',
+    fontWeight:'bold',
+    fontSize:20
+  }
 })

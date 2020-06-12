@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { StyleSheet, BackHandler, View, Text, TouchableOpacity, Slider, Animated, NativeModules, Dimensions } from 'react-native'
+import { StyleSheet, AppState, BackHandler, View, Text, TouchableOpacity, Slider, Animated, NativeModules, Dimensions } from 'react-native'
 import HeaderImageScrollView, { TriggeringView } from 'react-native-image-header-scroll-view';
 import Icon from 'react-native-ionicons'
 import Sound from 'react-native-sound'
@@ -49,6 +49,7 @@ function Lesson(props) {
   const [lesson, setLesson] = useState({});
   const [loadEnd, setLoadEnd] = useState(false);
   const [fileExist, setFileExist] = useState(false);
+  const [appState, setAppState] = useState(AppState.currentState);//forground or background
 
   let currentType = 0//for next and preve button
 
@@ -62,16 +63,35 @@ function Lesson(props) {
       deviceBackButton,
     );
 
+    //to stop sound on home button click
+    AppState.addEventListener('change', handleAppStateChange)
+
     fetchData(lessonId);
 
-    return () => handler.remove();
+    return () => {
+      handler.remove();
+      AppState.removeEventListener('change', handleAppStateChange)
+    }
 
   }, []);
+
+  //to stop sound on home button click
+  function handleAppStateChange(nextAppState) {
+    if (appState == "active" && nextAppState === 'active') {
+      //App has come to the foreground!
+    }
+    else {
+      handlePause();
+    }
+    setAppState(nextAppState);
+  }
 
   function fetchData(id) {
 
     let params = { Id: id, Type: currentType }
     getLesson(params).then((res) => {
+
+      console.log(res)
 
       if (currentType != 0)//next or prev button clicked
       {
@@ -90,6 +110,8 @@ function Lesson(props) {
 
       if (res.Liked)
         setIsLiked(true);
+      else
+        setIsLiked(false)
 
       RNFS.exists(`${RNFS.DocumentDirectoryPath}/${fileName}`).then((exist) => {
         if (exist) {
@@ -156,6 +178,10 @@ function Lesson(props) {
     findTime();
     setIsPlay(true);
 
+    //set duration of sound 
+    let tt = whoosh.getDuration();
+    setDuration(tt);
+
     whoosh.play((success) => {
       if (!success) {
         Toast.show(PlaySound, ErrorStyle)
@@ -211,8 +237,8 @@ function Lesson(props) {
     fetchData(lessonId);
   }
 
-  function handleLike(isLike) {
-    let params = { IsLike: isLike, Id: lessonId }
+  function handleLike() {
+    let params = { Id: lessonId }
     likeLesson(params).then(() => {
       fetchData(lessonId);
     }).catch(() => {
@@ -244,13 +270,13 @@ function Lesson(props) {
   }
 
   function _likeButton() {
-    let like = <TouchableOpacity onPress={() => { handleLike(true) }}>
+    let like = <TouchableOpacity onPress={() => { handleLike() }}>
       <Icon android="heart" size={25}
         color="#fff" />
     </TouchableOpacity>
 
     if (isLiked) {
-      like = <TouchableOpacity onPress={() => { handleLike(false) }}>
+      like = <TouchableOpacity onPress={() => { handleLike() }}>
         <Icon android="heart" size={25}
           color="red" />
       </TouchableOpacity>
@@ -301,7 +327,8 @@ function Lesson(props) {
 
         <View style={Styles.playerSliderMain}>
           <Slider
-            style={{ width: '100%', height: 40 }}
+            style={{ width: '100%', height: 40, }}
+            thumbTintColor={'#f35f19'}
             value={current}
             minimumValue={0}
             maximumValue={duration}

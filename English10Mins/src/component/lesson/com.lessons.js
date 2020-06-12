@@ -119,12 +119,15 @@ function Lessons(props) {
   }
 
   Lessons.navigationOptions = () => ({
-
+    headerStyle: {
+      backgroundColor: '#f35f19',
+    },
     headerLeft: () => null,
     title: 'Alvin',
     headerTitleStyle: {
       textAlign: "left",
-      fontSize: 24
+      fontSize: 24,
+      color:'white'
     },
 
     headerRightContainerStyle: {
@@ -132,7 +135,7 @@ function Lessons(props) {
     },
     headerRight: (
       <TouchableOpacity onPress={() => props.navigation.navigate("Search")}>
-        <Icon name="search" left={20} />
+        <Icon name="search" color={'white'} left={20} />
       </TouchableOpacity>
     )
 

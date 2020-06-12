@@ -1,5 +1,6 @@
 import { StyleSheet, NativeModules } from 'react-native'
 
+const buttonColor="#f35f19";
 const locale = NativeModules.I18nManager.localeIdentifier
 
 let direction = 'row'
@@ -21,7 +22,7 @@ export default StyleSheet.create({
     zIndex: 10,
     width: 30,
     height: 30,
-    backgroundColor: '#000',
+    backgroundColor: buttonColor,
     borderTopEndRadius: 20,
     borderTopLeftRadius: 20,
     borderBottomEndRadius: 20,
@@ -36,7 +37,7 @@ export default StyleSheet.create({
     zIndex: 10,
     width: 50,
     height: 30,
-    backgroundColor: 'red',
+    backgroundColor: buttonColor,
     borderTopEndRadius: 5,
     borderTopLeftRadius: 5,
     borderBottomEndRadius: 5,
@@ -53,7 +54,7 @@ export default StyleSheet.create({
     zIndex: 10,
     width: 50,
     height: 30,
-    backgroundColor: 'red',
+    backgroundColor: buttonColor,
     borderTopEndRadius: 5,
     borderTopLeftRadius: 5,
     borderBottomEndRadius: 5,
@@ -72,7 +73,7 @@ export default StyleSheet.create({
   ,
   playerButton: {
     flex: 1,
-    backgroundColor: '#5b369f',
+    backgroundColor: buttonColor,
     justifyContent: 'center',
     alignItems: 'center'
   },

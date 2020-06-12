@@ -5,7 +5,7 @@ export default StyleSheet.create({
         width: '100%',
         flexDirection: 'row',
         borderBottomWidth:1,
-        borderBottomColor:'gray'
+        borderBottomColor:'#f35f19'
     },
     headerBackSection: {
         flex: 1,
