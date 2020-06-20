@@ -76,7 +76,7 @@ export default StyleSheet.create({
   },
   likeContainer: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center'
   },
   likeCount: {

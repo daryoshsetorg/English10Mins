@@ -31,26 +31,6 @@ function Welcome(props) {
         <Image style={Styles.logo} source={require('../../assets/images/logo.png')} />
         <Text style={{ justifyContent: 'center', alignItems: 'center', zIndex: 10 }}>{Version.version}</Text>
       </View>
-      {/* <View style={Styles.mainClass}>
-        <View style={Styles.topRight}></View>
-        <View style={Styles.topMiddle}></View>
-        <View style={Styles.topLeft}></View>
-      </View>
-      <View style={Styles.logoArea}>
-        <Animated.View style={{ opacity: fadeAnim, zIndex: 10,justifyContent:'center' }}>
-          
-          <Text style={Styles.mainText}>English 3 Mins Every Day</Text>
-        </Animated.View>
-        
-      </View>
-      <View style={Styles.mainClass}>
-        <View style={Styles.bottomRight}></View>
-        <View style={Styles.bottomMiddle}></View>
-        <View style={Styles.bottomLeft}>
-        <Image style={Styles.logo} source={require('../../assets/images/logo.png')} />
-        <Text style={{justifyContent:'center',alignItems:'center',zIndex:10}}>{Version.version}</Text>
-        </View>
-      </View> */}
     </View >
   )
 }

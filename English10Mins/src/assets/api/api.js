@@ -5,8 +5,6 @@ import DeviceInfo, { getDeviceId } from 'react-native-device-info'
 const pageSize = 5;
 var androidId = ''
 
-
-
 export function getAll(params) {
     DeviceInfo.getAndroidId().then((id) => {
         androidId = id;
@@ -16,19 +14,15 @@ export function getAll(params) {
         return res.data;
     }).catch(() => {
         return [];
-    })
-
-        ;
+    });
 }
 
 export function getLesson(params) {
-
     if (androidId != '') {
         return Axios.get(MainLesson + "/" + params.Id + "/" + params.Type + "/" + androidId).then((res) => {
             return res.data
         });
     }
-
 }
 
 export function searchLessons(params) {

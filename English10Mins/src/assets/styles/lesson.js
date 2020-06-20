@@ -1,14 +1,13 @@
 import { StyleSheet, NativeModules } from 'react-native'
 
 const buttonColor="#f35f19";
-const purple="#cc5abd";
+const purple="#ffa1d3";
 const locale = NativeModules.I18nManager.localeIdentifier
 
 let direction = 'row'
 
 if (locale == 'fa_IR')
   direction = 'row-reverse'
-
 
 export default StyleSheet.create({
   mainSection: {
