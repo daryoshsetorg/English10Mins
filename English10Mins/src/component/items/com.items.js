@@ -27,8 +27,9 @@ export default function Items(params) {
             </TouchableOpacity>
           </View>
           <View style={Styles.likeContainer}>
-            <Icon android="heart" color="red" size={25} />
-            <Text>
+
+            <Icon android="heart" color="red" size={30} key={params.Id} />
+            <Text style={{marginTop:-23,fontSize:9,color:'white'}}>
               {params.LikeCount}
             </Text>
           </View>

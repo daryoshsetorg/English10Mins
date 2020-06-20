@@ -472,9 +472,9 @@ function Lesson(props) {
               bindToBorders={true}
             >
               <HTMLView stylesheet={htmlstyles} value={_renderHtml(lesson.Content)} />
-
+              <Text style={{ borderTopWidth: 2, borderTopColor: 'black', width: '100%', marginTop: 5, marginBottom: 5 }}></Text>
               <HTMLView stylesheet={htmlstyles} value={lesson.ContentExtra == null ? "" :
-                lesson.ContentExtra} />
+                _renderHtml(lesson.ContentExtra)} />
 
             </ReactNativeZoomableView>
           </View>

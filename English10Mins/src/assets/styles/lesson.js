@@ -1,6 +1,7 @@
 import { StyleSheet, NativeModules } from 'react-native'
 
 const buttonColor="#f35f19";
+const purple="#cc5abd";
 const locale = NativeModules.I18nManager.localeIdentifier
 
 let direction = 'row'
@@ -79,7 +80,7 @@ export default StyleSheet.create({
   },
   playerSlider: {
     flex: 4,
-    backgroundColor: 'gray',
+    backgroundColor: purple,
     flexDirection: direction
   },
   playerSliderText: {
@@ -110,13 +111,13 @@ export default StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'gray'
+    backgroundColor: purple
   }
   , playerOprationDownload: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'gray'
+    backgroundColor: purple
   },
   title: {
     flex: 1,

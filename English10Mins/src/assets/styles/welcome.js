@@ -58,7 +58,11 @@ export default  StyleSheet.create({
   },
   mainText:{
     color:'white',
+    fontSize:16
+  },
+  mainTextBold:{
+    color:'white',
     fontWeight:'bold',
-    fontSize:20
+    fontSize:26
   }
 })

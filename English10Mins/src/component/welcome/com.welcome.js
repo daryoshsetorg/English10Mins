@@ -24,7 +24,8 @@ function Welcome(props) {
   return (
     <View style={Styles.main}>
       <View style={Styles.mainClass}>
-        <Text style={Styles.mainText}>English 3 Mins Every Day</Text>
+        <Text style={Styles.mainTextBold}>English </Text>
+        <Text style={Styles.mainText}> 3 Mins Every Day</Text>
       </View>
       <View style={Styles.logoArea}>
         <Image style={Styles.logo} source={require('../../assets/images/logo.png')} />
