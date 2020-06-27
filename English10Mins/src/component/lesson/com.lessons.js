@@ -105,6 +105,8 @@ function Lessons(props) {
     if (loadEnd)
       render =
         <FlatList
+        refreshing={!loadEnd}
+        onRefresh={()=>{fetchData()}}
           data={data}
           renderItem={({ item }) => Items(item)}
           keyExtractor={item => item.Id}

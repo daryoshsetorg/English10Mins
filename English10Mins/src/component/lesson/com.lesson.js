@@ -17,6 +17,11 @@ import { ConnectToServer, PlaySound, LoadSound } from '../../utilities/errorsMes
 
 const locale = NativeModules.I18nManager.localeIdentifier//language
 let imageScroll = 200;
+var whoosh = new Sound("a.mp3", null, (error) => {
+  if (error) {
+    return;
+  }
+});
 
 function Lesson(props) {
 
@@ -26,16 +31,15 @@ function Lesson(props) {
 
   Sound.setCategory('Playback');
   const [lessonId, setLessonId] = useState(props.navigation.state.params.Id);
-  const [fileName] = useState(lessonId + ".mp3");
-  const [soundUrl] = useState(MainSoundUrl + "/" + fileName);
+  const [fileName, setFileName] = useState(lessonId + ".mp3");
   const [imageUrl, setImageUrl] = useState({ uri: MainImageUrl + "/" + lessonId + ".jpg" + '?random_number=' + new Date().getTime() });
 
-  const [whoosh] = useState(new Sound(soundUrl, null, (error) => {
-    if (error) {
-      Toast.show(LoadSound, ErrorStyle);
-      return;
-    }
-  }));
+  // const [whoosh] = useState(new Sound(soundUrl, null, (error) => {
+  //   if (error) {
+  //     Toast.show(LoadSound, ErrorStyle);
+  //     return;
+  //   }
+  // }));
 
   const [current, setCurrent] = useState(0);
   const [duration, setDuration] = useState(1);
@@ -55,7 +59,8 @@ function Lesson(props) {
 
   useEffect(() => {
     Animated.timing(
-      fadeAnim, { useNativeDriver: true }
+      fadeAnim,
+      { useNativeDriver: false }
     ).start();
 
     const handler = BackHandler.addEventListener(
@@ -91,18 +96,28 @@ function Lesson(props) {
     let params = { Id: id, Type: currentType }
     getLesson(params).then((res) => {
 
-      console.log(res)
+      whoosh = new Sound(MainSoundUrl + "/" + res.Id + ".mp3", null, (error) => {
+        if (error) {
+          Toast.show(LoadSound, ErrorStyle);
+          return;
+        }
+      });
 
       if (currentType != 0)//next or prev button clicked
       {
+        whoosh.stop();
+        whoosh.release();
+        setCurrent(0);
         setLessonId(res.Id);
         currentType = 0;
+        setFileName(res.Id + ".mp3")
+
         fetchData(res.Id);
       }
 
       //set duration of sound 
       let tt = whoosh.getDuration();
-      setDuration(tt);
+      setDuration(Math.floor(tt));
 
       setLesson(res);
       setImageUrl({ uri: MainImageUrl + "/" + id + ".jpg" + '?random_number=' + new Date().getTime() });
@@ -175,27 +190,39 @@ function Lesson(props) {
   }
 
   function handlePlay() {
-    findTime();
-    setIsPlay(true);
 
     //set duration of sound 
     let tt = whoosh.getDuration();
     setDuration(tt);
+    setIsPlay(true);
+    findTime(0);
+
 
     whoosh.play((success) => {
       if (!success) {
         Toast.show(PlaySound, ErrorStyle)
       }
       else {
+        console.log('b')
       }
     })
   }
 
-  function findTime() {
+  function findTime(currentTime) {
+
     whoosh.getCurrentTime((seconds) => {
-      setCurrent(seconds);
+      let bb = Math.ceil(seconds)
+      if (bb > currentTime) {
+        console.log(bb)
+        setCurrent(seconds);
+      }
+
       if (seconds != duration)
-        findTime();
+        setTimeout(() => {
+          findTime(bb);
+        }, 3000);
+      else
+        return false;
     })
   }
 
@@ -299,13 +326,13 @@ function Lesson(props) {
 
   function _player() {
 
-    let playButton = <TouchableOpacity onPress={() => { handlePlay() }}>
+    let playButton = <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 50, right: 50 }} onPress={() => { handlePlay() }}>
       <Icon android="play" size={20}
         color="#fff" />
     </TouchableOpacity>
 
     if (isPlay) {
-      playButton = <TouchableOpacity onPress={() => { handlePause() }}>
+      playButton = <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 50, right: 50 }} onPress={() => { handlePause() }}>
         <Icon android="pause" size={20}
           color="#fff" />
       </TouchableOpacity>
@@ -330,6 +357,7 @@ function Lesson(props) {
             style={{ width: '100%', height: 40, }}
             thumbTintColor={'#f35f19'}
             value={current}
+            step={1}
             minimumValue={0}
             maximumValue={duration}
             onValueChange={(v) => { handleSetCurrent(v) }}
