@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { StyleSheet, AppState, BackHandler, View, Text, TouchableOpacity, Slider, Animated, NativeModules, Dimensions } from 'react-native'
+import { StyleSheet, AppState, BackHandler, View, Text, TouchableOpacity, Slider, Animated, NativeModules, Dimensions, ActivityIndicator } from 'react-native'
 import HeaderImageScrollView, { TriggeringView } from 'react-native-image-header-scroll-view';
 import Icon from 'react-native-ionicons'
 import Sound from 'react-native-sound'
@@ -33,14 +33,7 @@ function Lesson(props) {
   const [lessonId, setLessonId] = useState(props.navigation.state.params.Id);
   const [fileName, setFileName] = useState(lessonId + ".mp3");
   const [imageUrl, setImageUrl] = useState({ uri: MainImageUrl + "/" + lessonId + ".jpg" + '?random_number=' + new Date().getTime() });
-
-  // const [whoosh] = useState(new Sound(soundUrl, null, (error) => {
-  //   if (error) {
-  //     Toast.show(LoadSound, ErrorStyle);
-  //     return;
-  //   }
-  // }));
-
+  const [loadSoundFinnished, setLoadSoundFinnished] = useState(false);
   const [current, setCurrent] = useState(0);
   const [duration, setDuration] = useState(1);
   const [isPlay, setIsPlay] = useState(false);
@@ -92,14 +85,20 @@ function Lesson(props) {
   }
 
   function fetchData(id) {
-
+    setDuration(1);
+    setLoadSoundFinnished(false);
     let params = { Id: id, Type: currentType }
     getLesson(params).then((res) => {
 
       whoosh = new Sound(MainSoundUrl + "/" + res.Id + ".mp3", null, (error) => {
         if (error) {
-          Toast.show(LoadSound, ErrorStyle);
+          // Toast.show(LoadSound, ErrorStyle);
           return;
+        }
+        else {
+          let b = whoosh.getDuration();
+          setDuration(Math.floor(b));
+          setLoadSoundFinnished(true);
         }
       });
 
@@ -114,10 +113,6 @@ function Lesson(props) {
 
         fetchData(res.Id);
       }
-
-      //set duration of sound 
-      let tt = whoosh.getDuration();
-      setDuration(Math.floor(tt));
 
       setLesson(res);
       setImageUrl({ uri: MainImageUrl + "/" + id + ".jpg" + '?random_number=' + new Date().getTime() });
@@ -197,14 +192,15 @@ function Lesson(props) {
     setIsPlay(true);
     findTime(0);
 
-
     whoosh.play((success) => {
       if (!success) {
+        setIsPlay(false);
         Toast.show(PlaySound, ErrorStyle)
+        whoosh.stop();
+        whoosh.release();
+        whoosh.reset();
       }
-      else {
-        console.log('b')
-      }
+
     })
   }
 
@@ -213,7 +209,6 @@ function Lesson(props) {
     whoosh.getCurrentTime((seconds) => {
       let bb = Math.ceil(seconds)
       if (bb > currentTime) {
-        console.log(bb)
         setCurrent(seconds);
       }
 
@@ -274,10 +269,15 @@ function Lesson(props) {
   }
 
   function _downloadButton() {
-    let download = <TouchableOpacity onPress={() => { handleDownload() }}>
-      <Icon android="download" size={25}
-        color="#fff" />
-    </TouchableOpacity>
+    let download = <Icon android="download" size={25}
+    color="#fff" />
+
+    if (loadSoundFinnished) {
+      download = <TouchableOpacity onPress={() => { handleDownload() }}>
+        <Icon android="download" size={25}
+          color="#fff" />
+      </TouchableOpacity>
+    }
 
     if (fileExist) {
       download = <Icon android="download" size={25}
@@ -326,12 +326,19 @@ function Lesson(props) {
 
   function _player() {
 
-    let playButton = <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 50, right: 50 }} onPress={() => { handlePlay() }}>
-      <Icon android="play" size={20}
-        color="#fff" />
-    </TouchableOpacity>
+    let playButton = <ActivityIndicator size={"small"} color={'#fff'} />
 
-    if (isPlay) {
+    if (loadSoundFinnished) {
+      playButton = <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 50, right: 50 }} onPress={() => { handlePlay() }}>
+        <Icon android="play" size={20}
+          color="#fff" />
+      </TouchableOpacity>
+    }
+    else {
+      playButton = <Text style={{ alignItems: 'center', justifyContent: 'center' }}> No Sound </Text>
+    }
+
+    if (isPlay && loadSoundFinnished) {
       playButton = <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 50, right: 50 }} onPress={() => { handlePause() }}>
         <Icon android="pause" size={20}
           color="#fff" />
@@ -393,9 +400,14 @@ function Lesson(props) {
   }
 
   function _smallPlayer() {
-    let playButton = <TouchableOpacity onPress={() => { handlePlay() }}>
-      <Icon android="play" size={40} color="#fff" />
-    </TouchableOpacity>
+
+    let playButton = <></>;
+
+    if (loadSoundFinnished) {
+      playButton = <TouchableOpacity onPress={() => { handlePlay() }}>
+        <Icon android="play" size={40} color="#fff" />
+      </TouchableOpacity>
+    }
 
     if (isPlay) {
       playButton = <TouchableOpacity onPress={() => { handlePause() }}>

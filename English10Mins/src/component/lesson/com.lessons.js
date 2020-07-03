@@ -36,7 +36,7 @@ function Lessons(props) {
         setData(data.concat(res));
         setLoadEnd(true);
         setLoadingMore(false);
-        exitApp=0;
+        exitApp = 0;
       }
       else {
         setDontLoadMore(true);
@@ -65,7 +65,7 @@ function Lessons(props) {
     props.navigation.navigate("Lesson", { Id: id });
   }
 
- function handleLoadMore () {
+  function handleLoadMore() {
     if (!dontLoadMore && !onEndReached) {
       pageIndex += 1;
       setLoadingMore(true);
@@ -105,8 +105,8 @@ function Lessons(props) {
     if (loadEnd)
       render =
         <FlatList
-        refreshing={!loadEnd}
-        onRefresh={()=>{fetchData()}}
+          refreshing={!loadEnd}
+          onRefresh={() => { fetchData() }}
           data={data}
           renderItem={({ item }) => Items(item)}
           keyExtractor={item => item.Id}
@@ -129,14 +129,14 @@ function Lessons(props) {
     headerTitleStyle: {
       textAlign: "left",
       fontSize: 24,
-      color:'white'
+      color: 'white'
     },
 
     headerRightContainerStyle: {
       paddingRight: 10
     },
     headerRight: (
-      <TouchableOpacity onPress={() => props.navigation.navigate("Search")}>
+      <TouchableOpacity hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }} onPress={() => props.navigation.navigate("Search")}>
         <Icon name="search" color={'white'} left={20} />
       </TouchableOpacity>
     )
