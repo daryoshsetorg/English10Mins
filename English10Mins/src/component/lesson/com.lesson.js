@@ -270,7 +270,7 @@ function Lesson(props) {
 
   function _downloadButton() {
     let download = <Icon android="download" size={25}
-    color="#fff" />
+      color="#fff" />
 
     if (loadSoundFinnished) {
       download = <TouchableOpacity onPress={() => { handleDownload() }}>
@@ -391,9 +391,9 @@ function Lesson(props) {
         {_likeButton()}
       </View>
 
-      <View style={Styles.playerOprationDownload}>
+      {/* <View style={Styles.playerOprationDownload}>
         {_downloadButton()}
-      </View>
+      </View> */}
 
     </View>
     )
@@ -449,7 +449,7 @@ function Lesson(props) {
         <View>
           {back}
 
-          <TouchableOpacity onPress={() => { handleNext() }} style={Styles.next}>
+          {/* <TouchableOpacity onPress={() => { handleNext() }} style={Styles.next}>
             <Text style={{ color: "#fff" }}>Next</Text>
           </TouchableOpacity>
 
@@ -457,7 +457,7 @@ function Lesson(props) {
             <Text style={{ color: "#fff" }}>
               Preve
             </Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       )
   }
@@ -511,18 +511,16 @@ function Lesson(props) {
               initialZoom={1}
               bindToBorders={true}
             >
+
               <HTMLView stylesheet={htmlstyles} value={_renderHtml(lesson.Content)} />
               <Text style={{ borderTopWidth: 2, borderTopColor: 'black', width: '100%', marginTop: 5, marginBottom: 5 }}></Text>
-              <HTMLView stylesheet={htmlstyles} value={lesson.ContentExtra == null ? "" :
-                _renderHtml(lesson.ContentExtra)} />
+              <HTMLView stylesheet={htmlstyles} value={lesson.ContentExtra == null ? "" : _renderHtml(lesson.ContentExtra)} />
 
             </ReactNativeZoomableView>
           </View>
 
         </ HeaderImageScrollView>
-
     }
-
     return mainReturn;
   }
 
