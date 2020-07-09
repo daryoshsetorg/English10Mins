@@ -17,6 +17,7 @@ import { ConnectToServer, PlaySound, LoadSound } from '../../utilities/errorsMes
 
 const locale = NativeModules.I18nManager.localeIdentifier//language
 let imageScroll = 200;
+let minHeight = 50;
 var whoosh = new Sound("a.mp3", null, (error) => {
   if (error) {
     return;
@@ -90,49 +91,61 @@ function Lesson(props) {
     let params = { Id: id, Type: currentType }
     getLesson(params).then((res) => {
 
-      whoosh = new Sound(MainSoundUrl + "/" + res.Id + ".mp3", null, (error) => {
-        if (error) {
-          // Toast.show(LoadSound, ErrorStyle);
-          return;
-        }
-        else {
-          let b = whoosh.getDuration();
-          setDuration(Math.floor(b));
-          setLoadSoundFinnished(true);
-        }
-      });
-
-      if (currentType != 0)//next or prev button clicked
+      if (res.HasVoice) //this lesson has voice
       {
-        whoosh.stop();
-        whoosh.release();
-        setCurrent(0);
-        setLessonId(res.Id);
-        currentType = 0;
-        setFileName(res.Id + ".mp3")
-
-        fetchData(res.Id);
+        whoosh = new Sound(MainSoundUrl + "/" + res.Id + ".mp3", null, (error) => {
+          console.log('before')
+          if (error) {
+            afterFetch(res, id);
+            return;
+          }
+          else {
+            minHeight = 80;
+            let b = whoosh.getDuration();
+            setDuration(Math.floor(b));
+            setLoadSoundFinnished(true);
+            afterFetch(res, id)
+          }
+        });
+      }
+      else {
+        afterFetch(res, id)
       }
 
-      setLesson(res);
-      setImageUrl({ uri: MainImageUrl + "/" + id + ".jpg" + '?random_number=' + new Date().getTime() });
-      setLoadEnd(true);
-
-      if (res.Liked)
-        setIsLiked(true);
-      else
-        setIsLiked(false)
-
-      RNFS.exists(`${RNFS.DocumentDirectoryPath}/${fileName}`).then((exist) => {
-        if (exist) {
-          setFileExist(true);
-        }
-      });
 
     }).catch(() => {
       Toast.show(ConnectToServer, ErrorStyle)
       setLoadEnd(true);
     });
+  }
+
+  function afterFetch(res, id) {
+    // if (currentType != 0)//next or prev button clicked
+    // {
+    //   whoosh.stop();
+    //   whoosh.release();
+    //   setCurrent(0);
+    //   setLessonId(res.Id);
+    //   currentType = 0;
+    //   setFileName(res.Id + ".mp3")
+
+    //   fetchData(res.Id);
+    // }
+
+    setLesson(res);
+   // setImageUrl({ uri: MainImageUrl + "/" + id + ".jpg" + '?random_number=' + new Date().getTime() });
+    setLoadEnd(true);
+
+    if (res.Liked)
+      setIsLiked(true);
+    else
+      setIsLiked(false)
+
+    // RNFS.exists(`${RNFS.DocumentDirectoryPath}/${fileName}`).then((exist) => {
+    //   if (exist) {
+    //     setFileExist(true);
+    //   }
+    // });
   }
 
   function deviceBackButton() {
@@ -325,7 +338,7 @@ function Lesson(props) {
   }
 
   function _player() {
-
+    console.log(loadSoundFinnished)
     let playButton = <ActivityIndicator size={"small"} color={'#fff'} />
 
     if (loadSoundFinnished) {
@@ -404,24 +417,23 @@ function Lesson(props) {
     let playButton = <></>;
 
     if (loadSoundFinnished) {
-      playButton = <TouchableOpacity onPress={() => { handlePlay() }}>
-        <Icon android="play" size={40} color="#fff" />
-      </TouchableOpacity>
+      playButton = <View style={Styles.playerMainSection}>
+        <View style={Styles.playerButton}><TouchableOpacity onPress={() => { handlePlay() }}>
+          <Icon android="play" size={40} color="#fff" />
+        </TouchableOpacity></View></View>
     }
 
     if (isPlay) {
-      playButton = <TouchableOpacity onPress={() => { handlePause() }}>
-        <Icon android="pause" size={40} color="#fff" />
-      </TouchableOpacity>
+      playButton = <View style={Styles.playerMainSection}>
+        <View style={Styles.playerButton}><TouchableOpacity onPress={() => { handlePause() }}>
+          <Icon android="pause" size={40} color="#fff" />
+        </TouchableOpacity></View></View>
     }
 
-    return (<View style={Styles.playerMainSection}>
-      <View style={Styles.playerButton}>
-
+    return (
+      <View>
         {playButton}
-
       </View>
-    </View>
     )
   }
 
@@ -471,8 +483,10 @@ function Lesson(props) {
   function _mainReturn() {
     let mainReturn = (<Spinner
       visible={true}
-      textContent={'Loading...'}
+      textContent={'Fetching Data ... '}
       textStyle={{ color: '#fff' }}
+      cancelable
+
     />)
 
     if (isDownloaded) {
@@ -483,7 +497,7 @@ function Lesson(props) {
       mainReturn =
         <HeaderImageScrollView
           maxHeight={imageScroll}
-          minHeight={80}
+          minHeight={minHeight}
           headerImage={imageUrl}
           maximumZoomScale={2}
           maxOverlayOpacity={0.5}

@@ -124,7 +124,7 @@ export default StyleSheet.create({
     justifyContent: 'center'
   },
   titleText: {
-    fontSize: 25,
+    fontSize: 16,
     fontWeight: 'bold'
   },
   bodyTarget: {

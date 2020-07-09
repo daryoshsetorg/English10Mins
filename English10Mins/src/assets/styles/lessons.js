@@ -69,7 +69,7 @@ export default StyleSheet.create({
     flex: 9
   },
   title: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     flexWrap: 'wrap',
     overflow: 'hidden',

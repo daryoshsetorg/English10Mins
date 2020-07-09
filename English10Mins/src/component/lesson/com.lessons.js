@@ -29,14 +29,14 @@ function Lessons(props) {
     return () => handler.remove();
   }, []);
 
-  fetchData = () => {
+ function fetchData() {
     let params = { index: pageIndex }
     getAll(params).then((res) => {
       if (res.length > 0) {
         setData(data.concat(res));
         setLoadEnd(true);
         setLoadingMore(false);
-        exitApp = 0;
+        //exitApp = 0;
       }
       else {
         setDontLoadMore(true);
@@ -50,12 +50,17 @@ function Lessons(props) {
     });
   }
 
+  function refreshData(){
+    pageIndex=0;
+    setData([])
+    fetchData();
+  }
   function deviceBackButton() {
-    if (exitApp == 0) {
-      exitApp = 1;
-      Toast.show("Press Back Again To Exit", ErrorStyle);
-    }
-    else
+    // if (exitApp == 0) {
+    //   exitApp = 1;
+    //   Toast.show("Press Back Again To Exit", ErrorStyle);
+    // }
+    // else
       BackHandler.exitApp();
 
     return true;
@@ -106,7 +111,7 @@ function Lessons(props) {
       render =
         <FlatList
           refreshing={!loadEnd}
-          onRefresh={() => { fetchData() }}
+          onRefresh={() => { refreshData() }}
           data={data}
           renderItem={({ item }) => Items(item)}
           keyExtractor={item => item.Id}
